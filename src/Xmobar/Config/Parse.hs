@@ -106,7 +106,8 @@ parseConfig defaultConfig =
       pAlpha = readField alpha "alpha"
       pVerbose = readField verbose "verbose"
 
-      pSignal = field signal "signal" $ fail "use default signal"
+      pSignal = field signal "signal" $
+        fail "signal is meant for use with Xmobar as a library.\n It is not meant for use in the configuration file."
 
       pCommands = field commands "commands" readCommands
 
