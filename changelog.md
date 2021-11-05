@@ -1,12 +1,13 @@
-## Version 0.40 (unreleased)
+## Version 0.40 (November, 2021)
 
 _New features_
 
   - New plugin: `QueueReader` (Guy Gastineau).
   - Greatly improved FreeBSD support: Mem, Network and Swap monitors
     fixes, and CI build for FreeBSD (Michal Zielonka).
+  - New template markup: `<hspace>`(tulthix)
 
-## Version 0.39 (Aug, 2021)
+## Version 0.39 (August, 2021)
 
 _New features_
 
