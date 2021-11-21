@@ -28,6 +28,12 @@ k10TempConfig = mkMConfig
        ] -- available replacements
 
 -- |
+-- Base directory for k10temp system bus
+--
+k10Dir :: String
+k10Dir = "/sys/bus/pci/drivers/k10temp/"
+
+-- |
 -- Function retrieves monitor string holding the temperature
 -- (or temperatures)
 runK10Temp :: [String] -> Monitor String
@@ -35,7 +41,7 @@ runK10Temp args = do
    dn <- getConfigValue decDigits
    failureMessage <- getConfigValue naString
    let slot = head args
-       path = ["/sys/bus/pci/drivers/k10temp/" ++ slot ++ "/hwmon/hwmon", "/temp", "_input"]
+       path = [k10Dir ++ slot ++ "/hwmon/hwmon", "/temp", "_input"]
        divisor = 1e3 :: Double
        show' = showDigits (max 0 dn)
    checkedDataRetrieval failureMessage [path] Nothing (/divisor) show'

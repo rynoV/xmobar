@@ -462,7 +462,8 @@ something like:
 
  - Aliases to =k10temp=
 
- - Slot: The PCI slot address of the k10temp device
+ - Slot: The PCI slot address of the k10temp device as a string.  You
+   can find it as a subdirectory in =/sys/bus/pci/drivers/k10temp/=.
 
  - Args: default monitor arguments
 
@@ -484,9 +485,11 @@ something like:
  - Example:
 
    #+begin_src haskell
-     Run CoreTemp ["-t", "Temp: <Tdie>C|<Tccd1>C",
-                   "-L", "40", "-H", "60",
-                   "-l", "lightblue", "-n", "gray90", "-h", "red"] 50
+     Run K10Temp "0000:00:18.3"
+                 ["-t", "Temp: <Tdie>C|<Tccd1>C",
+                  "-L", "40", "-H", "60",
+                  "-l", "lightblue", "-n", "gray90", "-h", "red"]
+                 50
    #+end_src
 
 
