@@ -159,6 +159,7 @@ library
                    Xmobar.Plugins.Monitors.Cpu.Common,
                    Xmobar.Plugins.Monitors.CpuFreq,
                    Xmobar.Plugins.Monitors.Disk,
+                   Xmobar.Plugins.Monitors.Disk.Common,
                    Xmobar.Plugins.Monitors.Mem,
                    Xmobar.Plugins.Monitors.MultiCoreTemp,
                    Xmobar.Plugins.Monitors.MultiCpu,
@@ -297,9 +298,11 @@ library
        -- enables freebsd specific code
        extra-libraries: procstat
                       , kvm
+                      , geom
        build-depends: bsd-sysctl
        other-modules: Xmobar.Plugins.Monitors.Batt.FreeBSD,
                       Xmobar.Plugins.Monitors.Cpu.FreeBSD,
+                      Xmobar.Plugins.Monitors.Disk.FreeBSD,
                       Xmobar.Plugins.Monitors.Mem.FreeBSD,
                       Xmobar.Plugins.Monitors.Net.FreeBSD,
                       Xmobar.Plugins.Monitors.Swap.FreeBSD,
@@ -308,6 +311,7 @@ library
     else
        other-modules: Xmobar.Plugins.Monitors.Batt.Linux,
                       Xmobar.Plugins.Monitors.Cpu.Linux,
+                      Xmobar.Plugins.Monitors.Disk.Linux,
                       Xmobar.Plugins.Monitors.Mem.Linux,
                       Xmobar.Plugins.Monitors.Net.Linux,
                       Xmobar.Plugins.Monitors.Swap.Linux,

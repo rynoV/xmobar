@@ -29,7 +29,6 @@ import Control.Exception (catch, SomeException(..))
 import Foreign (Int32, plusPtr)
 import Foreign.C.Types (CUIntMax, CUChar)
 import Foreign.C.String (peekCString)
-import Foreign.ForeignPtr ()
 import Foreign.Storable (Storable, alignment, sizeOf, peek, poke)
 import System.BSD.Sysctl (OID, sysctlPrepareOid, sysctlReadInt, sysctlPeek)
 
