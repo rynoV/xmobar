@@ -1,3 +1,10 @@
+## Version 0.41 (unreleased)
+
+_New features_
+
+  - Disk monitors for FreeBSD (Michal Zielonka).
+  - Improvements to signal handling when using xmobar as a library (John Soo).
+
 ## Version 0.40 (November, 2021)
 
 _New features_
