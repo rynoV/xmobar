@@ -294,7 +294,7 @@ something like:
                    "-L", "10", "-H", "80", "-p", "3",
                    "--", "-O", "<fc=green>On</fc> - ", "-i", "",
                    "-L", "-15", "-H", "-5",
-                   "-l", "red", "-m", "blue", "-h", "green"
+                   "-l", "red", "-m", "blue", "-h", "green",
                    "-a", "notify-send -u critical 'Battery running out!!'",
                    "-A", "3"]
                   600
