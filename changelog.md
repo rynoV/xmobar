@@ -1,4 +1,4 @@
-## Version 0.41 (unreleased)
+## Version 0.41 (January, 2022)
 
 _New features_
 
