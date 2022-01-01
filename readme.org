@@ -100,7 +100,7 @@ if you have the default configuration file saved as
 
 ** Signal Handling
 
-Since 0.14 xmobar reacts to SIGUSR1 and SIGUSR2:
+xmobar reacts to SIGUSR1 and SIGUSR2:
 
 - After receiving SIGUSR1 xmobar moves its position to the next screen.
 
@@ -119,6 +119,9 @@ Since 0.14 xmobar reacts to SIGUSR1 and SIGUSR2:
   [[contributing.org][contributing]].
 
 - If you want to write your own plugins, see [[./doc/write-your-own-plugin.org][write-your-own-plugin]].
+
+- To understand the internal mysteries of xmobar you may try reading
+  [[https://wiki.haskell.org/X_window_programming_in_Haskell][this tutorial]] on X Window Programming in Haskell.
 
 * Authors and credits
 
@@ -162,16 +165,12 @@ least for letting me think I grasp existential types...;-).
 Thanks to Andrea for creating xmobar in the first place, and for giving
 me the chance to contribute.
 
-* Related
-
-- To understand the internal mysteries of xmobar you may try reading
-  [[https://wiki.haskell.org/X_window_programming_in_Haskell][this tutorial]] on X Window Programming in Haskell.
 
 * License
 
 This software is released under a BSD-style license. See [[https://github.com/jaor/xmobar/raw/master/license][license]] for
 more details.
 
-Copyright © 2010-2020 Jose Antonio Ortega Ruiz
+Copyright © 2010-2022 Jose Antonio Ortega Ruiz
 
 Copyright © 2007-2010 Andrea Rossato
