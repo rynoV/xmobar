@@ -37,7 +37,7 @@ mkDerivation {
     regex-compat stm temporary time transformers unix X11
   ];
   doCheck = false;
-  homepage = "http://xmobar.org";
+  homepage = "https://github.com/jaor/xmobar";
   description = "A Minimalistic Text Based Status Bar";
   license = stdenv.lib.licenses.bsd3;
 }

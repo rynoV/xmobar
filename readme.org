@@ -18,7 +18,7 @@ These are some xmobar [[file:doc/screenshots][screenshots]] using the author's c
 
 [[file:doc/screenshots/xmobar-exwm.png]]
 
-This is the [[https://xmobar.org/changelog.html][changelog]] for recent releases.
+This is the [[./changelog.md][changelog]] for recent releases.
 
 * Installation
 ** From your Systems Package Manager
