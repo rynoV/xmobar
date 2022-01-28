@@ -112,7 +112,6 @@ library
                    Xmobar.Run.Types,
                    Xmobar.Run.Template,
                    Xmobar.Run.Exec,
-                   Xmobar.Run.Command,
                    Xmobar.Run.Runnable
                    Xmobar.App.EventLoop,
                    Xmobar.App.Config,
@@ -135,6 +134,7 @@ library
                    Xmobar.X11.ColorCache,
                    Xmobar.X11.Window,
                    Xmobar.X11.Draw,
+                   Xmobar.Plugins.Command,
                    Xmobar.Plugins.BufferedPipeReader,
                    Xmobar.Plugins.CommandReader,
                    Xmobar.Plugins.Date,

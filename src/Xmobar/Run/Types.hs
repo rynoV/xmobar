@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------
 -- |
 -- Module: Xmobar.Run.Types
--- Copyright: (c) 2018 Jose Antonio Ortega Ruiz
+-- Copyright: (c) 2018, 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
 -- Maintainer: jao@gnu.org
@@ -19,6 +19,7 @@
 module Xmobar.Run.Types(runnableTypes) where
 
 import {-# SOURCE #-} Xmobar.Run.Runnable()
+import Xmobar.Plugins.Command
 import Xmobar.Plugins.Monitors
 import Xmobar.Plugins.Date
 import Xmobar.Plugins.PipeReader
@@ -44,8 +45,6 @@ import Xmobar.Plugins.DateZone
 #ifdef KRAKEN
 import Xmobar.Plugins.Kraken
 #endif
-
-import Xmobar.Run.Command
 
 -- | An alias for tuple types that is more convenient for long lists.
 type a :*: b = (a, b)

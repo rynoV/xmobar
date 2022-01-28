@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 -- |
 -- Module: Xmobar.Plugins.Command
--- Copyright: (c) 2018 Jose Antonio Ortega Ruiz
+-- Copyright: (c) 2018, 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
 -- Maintainer: jao@gnu.org
@@ -15,7 +15,7 @@
 ------------------------------------------------------------------------------
 
 
-module Xmobar.Run.Command where
+module Xmobar.Plugins.Command where
 
 import Control.Exception (handle, SomeException(..))
 import System.Process

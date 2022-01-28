@@ -20,8 +20,9 @@ module Xmobar.Run.Template(parseTemplate, splitTemplate) where
 import qualified Data.Map as Map
 import Text.ParserCombinators.Parsec
 
+import Xmobar.Plugins.Command
+
 import Xmobar.Run.Exec
-import Xmobar.Run.Command
 import Xmobar.Run.Runnable
 
 defaultAlign :: String
