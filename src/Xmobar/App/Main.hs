@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 -- |
 -- Module: Xmobar.App.Main
--- Copyright: (c) 2018, 2019, 2020 Jose Antonio Ortega Ruiz
+-- Copyright: (c) 2018, 2019, 2020, 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
 -- Maintainer: jao@gnu.org
@@ -51,12 +51,12 @@ xmobar :: Config -> IO ()
 xmobar conf = withDeferSignals $ do
   initThreads
   d <- openDisplay ""
-  fs    <- initFont d (font conf)
-  fl    <- mapM (initFont d) (additionalFonts conf)
-  cls   <- mapM (parseTemplate (commands conf) (sepChar conf))
+  fs <- initFont d (font conf)
+  fl <- mapM (initFont d) (additionalFonts conf)
+  cls <- mapM (parseTemplate (commands conf) (sepChar conf))
                 (splitTemplate (alignSep conf) (template conf))
   let confSig = unSignalChan (signal conf)
-  sig   <- maybe newEmptyTMVarIO pure confSig
+  sig <- maybe newEmptyTMVarIO pure confSig
   unless (isJust confSig) $ setupSignalHandler sig
   refLock <- newRefreshLock
   withTimer (refreshLock refLock) $
@@ -110,5 +110,6 @@ xmobarMain = do
     Just p -> do r <- readConfig defaultConfig p
                  case r of
                    Left e ->
-                     buildLaunch (filter (/= p) args) (verboseFlag flags) (recompileFlag flags) p e
+                     buildLaunch (filter (/= p) args) (verboseFlag flags)
+                                 (recompileFlag flags) p e
                    Right (c, defs) -> doOpts c flags >>= xmobar' defs

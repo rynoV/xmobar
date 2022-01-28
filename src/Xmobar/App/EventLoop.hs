@@ -2,8 +2,8 @@
 
 ------------------------------------------------------------------------------
 -- |
--- Module: Xmobar.X11.EventLoop
--- Copyright: (c) 2018, 2020 Jose Antonio Ortega Ruiz
+-- Module: Xmobar.App.EventLoop
+-- Copyright: (c) 2018, 2020, 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
 -- Maintainer: jao@gnu.org
@@ -249,21 +249,26 @@ startCommand sig (com,s,ss)
                      return ([a1, a2], var)
     where is = s ++ "Updating..." ++ ss
 
-updateString :: Config -> TVar [String]
-                -> IO [[(Widget, TextRenderInfo, Int, Maybe [Action])]]
+updateString :: Config
+             -> TVar [String]
+             -> IO [[(Widget, TextRenderInfo, Int, Maybe [Action])]]
 updateString conf v = do
   s <- readTVarIO v
   let l:c:r:_ = s ++ repeat ""
   liftIO $ mapM (parseString conf) [l, c, r]
 
-updateActions :: XConf -> Rectangle -> [[(Widget, TextRenderInfo, Int, Maybe [Action])]]
-                 -> IO [([Action], Position, Position)]
+updateActions :: XConf
+              -> Rectangle
+              -> [[(Widget, TextRenderInfo, Int, Maybe [Action])]]
+              -> IO [([Action], Position, Position)]
 updateActions conf (Rectangle _ _ wid _) ~[left,center,right] = do
   let (d,fs) = (display &&& fontListS) conf
-      strLn :: [(Widget, TextRenderInfo, Int, Maybe [Action])] -> IO [(Maybe [Action], Position, Position)]
+      strLn :: [(Widget, TextRenderInfo, Int, Maybe [Action])]
+            -> IO [(Maybe [Action], Position, Position)]
       strLn  = liftIO . mapM getCoords
       iconW i = maybe 0 Bitmap.width (lookup i $ iconS conf)
-      getCoords (Text s,_,i,a) = textWidth d (safeIndex fs i) s >>= \tw -> return (a, 0, fi tw)
+      getCoords (Text s,_,i,a) =
+        textWidth d (safeIndex fs i) s >>= \tw -> return (a, 0, fi tw)
       getCoords (Icon s,_,_,a) = return (a, 0, fi $ iconW s)
       getCoords (Hspace w,_,_,a) = return (a, 0, fi w)
       partCoord off xs = map (\(a, x, x') -> (fromJust a, x, x')) $

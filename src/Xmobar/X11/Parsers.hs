@@ -193,16 +193,16 @@ boxReader b (x:xs) = do
                  (p,'=':v) -> (p, v)
                  (p,    _) -> (p, "")
   boxReader (boxParamReader b param val) xs
- 
+
 boxParamReader :: Box -> String -> String -> Box
 boxParamReader b _ "" = b
-boxParamReader (Box bb off lw fc mgs) "type" val = 
+boxParamReader (Box bb off lw fc mgs) "type" val =
   Box (fromMaybe bb $ readMaybe ("BB" ++ val)) off lw fc mgs
 boxParamReader (Box bb (BoxOffset alg off) lw fc mgs) "offset" (a:o) =
   Box bb (BoxOffset (fromMaybe alg $ readMaybe [a]) (fromMaybe off $ readMaybe o)) lw fc mgs
-boxParamReader (Box bb off lw fc mgs) "width" val = 
+boxParamReader (Box bb off lw fc mgs) "width" val =
   Box bb off (fromMaybe lw $ readMaybe val) fc mgs
-boxParamReader (Box bb off lw _ mgs) "color" val = 
+boxParamReader (Box bb off lw _ mgs) "color" val =
   Box bb off lw val mgs
 boxParamReader (Box bb off lw fc mgs@(BoxMargins mt mr mb ml)) ('m':pos) val = do
   let mgs' = case pos of
