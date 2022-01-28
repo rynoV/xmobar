@@ -14,8 +14,14 @@
 --
 -----------------------------------------------------------------------------
 
-module Xmobar.X11.Parsers (parseString, Box(..), BoxBorder(..), BoxOffset(..),
-  BoxMargins(..), TextRenderInfo(..), Widget(..)) where
+module Xmobar.X11.Parsers ( parseString
+                          , parseStringAsText
+                          , Box(..)
+                          , BoxBorder(..)
+                          , BoxOffset(..)
+                          , BoxMargins(..)
+                          , TextRenderInfo(..)
+                          , Widget(..)) where
 
 import Xmobar.Config.Types
 import Xmobar.X11.Actions
@@ -61,6 +67,16 @@ parseString c s =
                           , Nothing)]
       Right x -> return (concat x)
     where ci = TextRenderInfo (fgColor c) 0 0 []
+
+asText :: (Widget, TextRenderInfo, FontIndex, Maybe [Action]) -> String
+asText (Text s, _, _, _) = s
+asText _ = ""
+
+parseStringAsText :: Config -> String -> IO String
+parseStringAsText c s = do
+  chunks <- parseString c s
+  let txts = map asText chunks
+  return (concat txts)
 
 allParsers :: TextRenderInfo
            -> FontIndex
