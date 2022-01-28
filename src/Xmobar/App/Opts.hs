@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 -- |
 -- Module: Xmobar.App.Opts
--- Copyright: (c) 2018, 2019, 2020 Jose Antonio Ortega Ruiz
+-- Copyright: (c) 2018, 2019, 2020, 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
 -- Maintainer: jao@gnu.org
@@ -14,7 +14,10 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.App.Opts (recompileFlag, verboseFlag, getOpts, doOpts) where
+module Xmobar.App.Opts ( recompileFlag
+                       , verboseFlag
+                       , getOpts
+                       , doOpts) where
 
 import Control.Monad (when)
 import System.Console.GetOpt
@@ -30,6 +33,7 @@ data Opts = Help
           | Verbose
           | Recompile
           | Version
+          | TextOutput
           | Font       String
           | AddFont    String
           | BgColor    String
@@ -56,6 +60,7 @@ options =
     , Option "v" ["verbose"] (NoArg Verbose) "Emit verbose debugging messages"
     , Option "r" ["recompile"] (NoArg Recompile) "Force recompilation"
     , Option "V" ["version"] (NoArg Version) "Show version information"
+    , Option "T" ["text"] (NoArg TextOutput) "Write text-only output to stdout"
     , Option "f" ["font"] (ReqArg Font "font name") "Font name"
     , Option "N" ["add-font"] (ReqArg AddFont "font name") "Add to the list of additional fonts"
     , Option "w" ["wmclass"] (ReqArg WmClass "class") "X11 WM_CLASS property"
@@ -106,7 +111,7 @@ usage = usageInfo header options ++ footer
 
 info :: String
 info = "xmobar " ++ showVersion version
-        ++ "\n (C) 2010 - 2020 Jose A Ortega Ruiz"
+        ++ "\n (C) 2010 - 2022 Jose A Ortega Ruiz"
         ++ "\n (C) 2007 - 2010 Andrea Rossato\n "
         ++ mail ++ "\n" ++ license ++ "\n"
 
@@ -127,6 +132,7 @@ doOpts conf (o:oo) =
     Help -> doOpts' conf
     Version -> doOpts' conf
     Recompile -> doOpts' conf
+    TextOutput -> doOpts' (conf {textOutput = True})
     Verbose -> doOpts' (conf {verbose = True})
     Font s -> doOpts' (conf {font = s})
     AddFont s -> doOpts' (conf {additionalFonts = additionalFonts conf ++ [s]})

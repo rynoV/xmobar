@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------
 -- |
 -- Module: Xmobar.Config.Parse
--- Copyright: (c) 2018, 2020 Jose Antonio Ortega Ruiz
+-- Copyright: (c) 2018, 2020, 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
 -- Maintainer: jao@gnu.org
@@ -62,7 +62,7 @@ parseConfig defaultConfig =
       perms = permute $ Config
               <$?> pFont <|?> pFontList <|?> pWmClass <|?> pWmName
               <|?> pBgColor <|?> pFgColor
-              <|?> pPosition <|?> pTextOffset <|?> pTextOffsets
+              <|?> pPosition <|?> pTextOutput <|?> pTextOffset <|?> pTextOffsets
               <|?> pIconOffset <|?> pBorder
               <|?> pBdColor <|?> pBdWidth <|?> pAlpha <|?> pHideOnStart
               <|?> pAllDesktops <|?> pOverrideRedirect <|?> pPickBroadest
@@ -76,9 +76,10 @@ parseConfig defaultConfig =
                   , "position" , "textOffset", "textOffsets", "iconOffset"
                   , "allDesktops", "overrideRedirect", "pickBroadest"
                   , "hideOnStart", "lowerOnStart", "persistent", "iconRoot"
-                  , "alpha", "commands", "verbose", "signal"
+                  , "alpha", "commands", "verbose", "signal", "textOutput"
                   ]
 
+      pTextOutput = readField textOutput "textOutput"
       pFont = strField font "font"
       pFontList = strListField additionalFonts "additionalFonts"
       pWmClass = strField wmClass "wmClass"

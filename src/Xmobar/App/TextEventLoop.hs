@@ -16,35 +16,34 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.App.TextEventLoop (startLoop) where
+module Xmobar.App.TextEventLoop (startTextLoop) where
 
 import Prelude hiding (lookup)
 
 import Control.Monad.Reader
 import Control.Concurrent
-import Control.Concurrent.Async (Async, async)
+import Control.Concurrent.Async (Async)
 import Control.Concurrent.STM
-import Control.Exception (bracket_, handle, SomeException(..))
+import Control.Exception (handle, SomeException(..))
 
 import Xmobar.System.Signal
 import Xmobar.Config.Types (Config)
-import Xmobar.Run.Exec
-import Xmobar.Run.Runnable
+
 import Xmobar.X11.Parsers (parseStringAsText)
 
-import Xmobar.App.CommandThreads (startCommand, refreshLockT)
+import Xmobar.App.CommandThreads (refreshLockT)
 
 #ifdef DBUS
 import Xmobar.System.DBus
 #endif
 
 -- | Starts the main event loop and threads
-startLoop :: Config
-          -> TMVar SignalType
-          -> TMVar ()
-          -> [[([Async ()], TVar String)]]
-          -> IO ()
-startLoop cfg sig pauser vs = do
+startTextLoop :: Config
+              -> TMVar SignalType
+              -> TMVar ()
+              -> [[([Async ()], TVar String)]]
+              -> IO ()
+startTextLoop cfg sig pauser vs = do
     tv <- newTVarIO []
     _ <- forkIO (handle (handler "checker") (checker tv [] vs sig pauser))
 #ifdef DBUS

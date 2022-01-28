@@ -42,14 +42,15 @@ import Xmobar.X11.Types
 import Xmobar.X11.Text
 import Xmobar.X11.Window
 import Xmobar.App.Opts (recompileFlag, verboseFlag, getOpts, doOpts)
-import Xmobar.App.EventLoop (startLoop)
 import Xmobar.App.CommandThreads (startCommand, newRefreshLock, refreshLock)
+import Xmobar.App.EventLoop (startLoop)
+import Xmobar.App.TextEventLoop (startTextLoop)
 import Xmobar.App.Compile (recompile, trace)
 import Xmobar.App.Config
 import Xmobar.App.Timer (withTimer)
 
-xmobar :: Config -> IO ()
-xmobar conf = withDeferSignals $ do
+xXmobar :: Config -> IO ()
+xXmobar conf = withDeferSignals $ do
   initThreads
   d <- openDisplay ""
   fs <- initFont d (font conf)
@@ -69,6 +70,24 @@ xmobar conf = withDeferSignals $ do
           to = textOffset conf
           ts = textOffsets conf ++ replicate (length fl) (-1)
       startLoop (XConf d r w (fs :| fl) (to :| ts) ic conf) sig refLock vars
+
+textXmobar :: Config -> IO ()
+textXmobar conf = withDeferSignals $ do
+  initThreads
+  cls <- mapM (parseTemplate (commands conf) (sepChar conf))
+                (splitTemplate (alignSep conf) (template conf))
+  let confSig = unSignalChan (signal conf)
+  sig <- maybe newEmptyTMVarIO pure confSig
+  unless (isJust confSig) $ setupSignalHandler sig
+  refLock <- newRefreshLock
+  withTimer (refreshLock refLock) $
+    bracket (mapM (mapM $ startCommand sig) cls)
+            cleanupThreads
+            $ \vars -> do
+      startTextLoop conf sig refLock vars
+
+xmobar :: Config -> IO ()
+xmobar cfg = if textOutput cfg then textXmobar cfg else xXmobar cfg
 
 configFromArgs :: Config -> IO Config
 configFromArgs cfg = getArgs >>= getOpts >>= doOpts cfg . fst
