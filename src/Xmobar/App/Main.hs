@@ -42,7 +42,8 @@ import Xmobar.X11.Types
 import Xmobar.X11.Text
 import Xmobar.X11.Window
 import Xmobar.App.Opts (recompileFlag, verboseFlag, getOpts, doOpts)
-import Xmobar.App.EventLoop (startLoop, startCommand, newRefreshLock, refreshLock)
+import Xmobar.App.EventLoop (startLoop)
+import Xmobar.App.CommandThreads (startCommand, newRefreshLock, refreshLock)
 import Xmobar.App.Compile (recompile, trace)
 import Xmobar.App.Config
 import Xmobar.App.Timer (withTimer)

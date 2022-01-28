@@ -113,6 +113,7 @@ library
                    Xmobar.Run.Template,
                    Xmobar.Run.Exec,
                    Xmobar.Run.Runnable
+                   Xmobar.App.CommandThreads,
                    Xmobar.App.EventLoop,
                    Xmobar.App.Config,
                    Xmobar.App.Main,

@@ -16,13 +16,7 @@
 --
 ------------------------------------------------------------------------------
 
-
-module Xmobar.App.EventLoop
-    ( startLoop
-    , startCommand
-    , newRefreshLock
-    , refreshLock
-    ) where
+module Xmobar.App.EventLoop (startLoop) where
 
 import Prelude hiding (lookup)
 import Graphics.X11.Xlib hiding (textExtents, textWidth)
@@ -33,18 +27,22 @@ import Graphics.X11.Xrandr
 import Control.Arrow ((&&&))
 import Control.Monad.Reader
 import Control.Concurrent
-import Control.Concurrent.Async (Async, async)
+import Control.Concurrent.Async (Async)
 import Control.Concurrent.STM
-import Control.Exception (bracket_, handle, SomeException(..))
+import Control.Exception (handle, SomeException(..))
 import Data.Bits
 import Data.Map hiding (foldr, map, filter)
 import Data.Maybe (fromJust, isJust)
 import qualified Data.List.NonEmpty as NE
 
 import Xmobar.System.Signal
-import Xmobar.Config.Types (persistent, position, iconRoot, Config, Align(..), XPosition(..))
-import Xmobar.Run.Exec
-import Xmobar.Run.Runnable
+import Xmobar.Config.Types (persistent
+                           , position
+                           , iconRoot
+                           , Config
+                           , Align(..)
+                           , XPosition(..))
+
 import Xmobar.X11.Actions
 import Xmobar.X11.Parsers
 import Xmobar.X11.Window
@@ -53,6 +51,8 @@ import Xmobar.X11.Draw
 import Xmobar.X11.Bitmap as Bitmap
 import Xmobar.X11.Types
 import Xmobar.System.Utils (safeIndex)
+
+import Xmobar.App.CommandThreads (refreshLockT)
 
 #ifndef THREADED_RUNTIME
 import Xmobar.X11.Events(nextEvent')
@@ -68,22 +68,6 @@ import Xmobar.System.DBus
 
 runX :: XConf -> X () -> IO ()
 runX xc f = runReaderT f xc
-
-newRefreshLock :: IO (TMVar ())
-newRefreshLock = newTMVarIO ()
-
-refreshLock :: TMVar () -> IO a -> IO a
-refreshLock var = bracket_ lock unlock
-    where
-        lock = atomically $ takeTMVar var
-        unlock = atomically $ putTMVar var ()
-
-refreshLockT :: TMVar () -> STM a -> STM a
-refreshLockT var action = do
-    takeTMVar var
-    r <- action
-    putTMVar var ()
-    return r
 
 -- | Starts the main event loop and threads
 startLoop :: XConf
@@ -229,25 +213,6 @@ eventLoop tv xc@(XConf d r w fs vos is cfg) as signal = do
             concatMap (\(a,_,_) -> a) $
             filter (\(_, from, to) -> x >= from && x <= to) as
           eventLoop tv xc as signal
-
--- $command
-
--- | Runs a command as an independent thread and returns its Async handles
--- and the TVar the command will be writing to.
-startCommand :: TMVar SignalType
-             -> (Runnable,String,String)
-             -> IO ([Async ()], TVar String)
-startCommand sig (com,s,ss)
-    | alias com == "" = do var <- newTVarIO is
-                           atomically $ writeTVar var (s ++ ss)
-                           return ([], var)
-    | otherwise = do var <- newTVarIO is
-                     let cb str = atomically $ writeTVar var (s ++ str ++ ss)
-                     a1 <- async $ start com cb
-                     a2 <- async $ trigger com $ maybe (return ())
-                                                 (atomically . putTMVar sig)
-                     return ([a1, a2], var)
-    where is = s ++ "Updating..." ++ ss
 
 updateString :: Config
              -> TVar [String]
