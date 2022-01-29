@@ -37,6 +37,7 @@ data Config =
            , fgColor :: String      -- ^ Default font color
            , position :: XPosition  -- ^ Top Bottom or Static
            , textOutput :: Bool     -- ^ Write data to stdout instead of X
+           , ansiColors :: Bool     -- ^ Use ANSI color escapes for stdout
            , textOffset :: Int      -- ^ Offset from top of window for text
            , textOffsets :: [Int]   -- ^ List of offsets for additionalFonts
            , iconOffset :: Int      -- ^ Offset from top of window for icons

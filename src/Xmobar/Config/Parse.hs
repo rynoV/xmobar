@@ -61,8 +61,9 @@ parseConfig defaultConfig =
 
       perms = permute $ Config
               <$?> pFont <|?> pFontList <|?> pWmClass <|?> pWmName
-              <|?> pBgColor <|?> pFgColor
-              <|?> pPosition <|?> pTextOutput <|?> pTextOffset <|?> pTextOffsets
+              <|?> pBgColor <|?> pFgColor <|?> pPosition
+              <|?> pTextOutput <|?> pAnsiColors
+              <|?> pTextOffset <|?> pTextOffsets
               <|?> pIconOffset <|?> pBorder
               <|?> pBdColor <|?> pBdWidth <|?> pAlpha <|?> pHideOnStart
               <|?> pAllDesktops <|?> pOverrideRedirect <|?> pPickBroadest
@@ -80,6 +81,7 @@ parseConfig defaultConfig =
                   ]
 
       pTextOutput = readField textOutput "textOutput"
+      pAnsiColors = readField textOutput "textAnsiColors"
       pFont = strField font "font"
       pFontList = strListField additionalFonts "additionalFonts"
       pWmClass = strField wmClass "wmClass"

@@ -17,6 +17,7 @@
 module Xmobar.App.TextEventLoop (textLoop) where
 
 import Prelude hiding (lookup)
+import Data.List (intercalate)
 
 import Control.Monad.Reader
 
@@ -24,8 +25,8 @@ import Control.Concurrent.Async (Async)
 import Control.Concurrent.STM
 
 import Xmobar.System.Signal
-import Xmobar.Config.Types (Config)
-import Xmobar.X11.Parsers (Segment, Widget(..), parseString)
+import Xmobar.Config.Types (Config, ansiColors)
+import Xmobar.X11.Parsers (Segment, Widget(..), parseString, tColorsString, colorComponents)
 import Xmobar.App.CommandThreads (initLoop, loop)
 
 -- | Starts the main event loop and threads
@@ -55,13 +56,41 @@ updateString conf v = do
   let l:c:r:_ = s ++ repeat ""
   liftIO $ concat `fmap` mapM (parseStringAsText conf) [l, c, r]
 
-asText :: Segment -> String
-asText (Text s, _, _, _) = s
-asText (Hspace n, _, _, _) = replicate (fromIntegral n) ' '
-asText _ = ""
+asInt :: String -> String
+asInt x = case (reads $ "0x" ++ x)  :: [(Integer, String)] of
+  [(v, "") ] -> show v
+  _ -> ""
+
+namedColor :: String -> String
+namedColor c =
+  case c of
+    "black" -> "0"; "red" -> "1"; "green" -> "2"; "yellow" -> "3"; "blue" -> "4";
+    "magenta" -> "5"; "cyan" -> "6"; "white" -> "7"; _ -> ""
+
+ansiCode :: String -> String
+ansiCode ('#':r:g:[b]) = ansiCode ['#', '0', r, '0', g, '0', b]
+ansiCode ('#':r0:r1:g0:g1:b0:[b1]) =
+  "2;" ++ intercalate ";" (map asInt [[r0,r1], [g0,g1], [b0,b1]])
+ansiCode ('#':n) = ansiCode n
+ansiCode c = "5;" ++ if null i then namedColor c else i where i = asInt c
+
+withAnsiColor :: (String, String) -> String -> String
+withAnsiColor (fg, bg) s = wrap "38;" fg (wrap "48;" bg s)
+  where wrap cd cl w =
+          if null cl
+          then w
+          else "\x1b[" ++ cd ++ ansiCode cl ++ "m" ++ w ++ "\x1b[0m"
+
+asText :: Config -> Segment -> String
+asText conf (Text s, info, _, _) =
+  if null color then s else withAnsiColor (colorComponents conf color) s
+  where color = if ansiColors conf then tColorsString info else ""
+asText colors (Hspace n, i, x, y) =
+  asText colors (Text $ replicate (fromIntegral n) ' ', i, x, y)
+asText _ _ = ""
 
 parseStringAsText :: Config -> String -> IO String
 parseStringAsText c s = do
   segments <- parseString c s
-  let txts = map asText segments
+  let txts = map (asText c) segments
   return (concat txts)
