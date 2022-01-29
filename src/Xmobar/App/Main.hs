@@ -17,49 +17,25 @@
 
 module Xmobar.App.Main (xmobar, xmobarMain, configFromArgs) where
 
-import qualified Data.Map as Map
+
 import Data.List (intercalate)
 import System.Posix.Process (executeFile)
 import System.Environment (getArgs)
 import System.FilePath ((</>), takeBaseName, takeDirectory, takeExtension)
 import Text.Parsec.Error (ParseError)
-import Data.List.NonEmpty (NonEmpty(..))
+
 import Control.Monad (unless)
 
-import Graphics.X11.Xlib
-
+import Xmobar.App.Config
 import Xmobar.Config.Types
 import Xmobar.Config.Parse
-import Xmobar.System.Signal (withDeferSignals)
-
-import Xmobar.X11.Types
-import Xmobar.X11.Text
-import Xmobar.X11.Window
 import Xmobar.App.Opts (recompileFlag, verboseFlag, getOpts, doOpts)
-import Xmobar.App.CommandThreads (loop)
-import Xmobar.App.EventLoop (startLoop)
-import Xmobar.App.TextEventLoop (startTextLoop)
+import Xmobar.App.X11EventLoop (x11Loop)
+import Xmobar.App.TextEventLoop (textLoop)
 import Xmobar.App.Compile (recompile, trace)
-import Xmobar.App.Config
-
-xXmobar :: Config -> IO ()
-xXmobar conf = withDeferSignals $ do
-  initThreads
-  d <- openDisplay ""
-  fs <- initFont d (font conf)
-  fl <- mapM (initFont d) (additionalFonts conf)
-  let ic = Map.empty
-      to = textOffset conf
-      ts = textOffsets conf ++ replicate (length fl) (-1)
-  loop conf $ \sig lock vars -> do
-    (r,w) <- createWin d fs conf
-    startLoop (XConf d r w (fs :| fl) (to :| ts) ic conf) sig lock vars
-
-textXmobar :: Config -> IO ()
-textXmobar conf = loop conf (startTextLoop conf)
 
 xmobar :: Config -> IO ()
-xmobar cfg = if textOutput cfg then textXmobar cfg else xXmobar cfg
+xmobar cfg = if textOutput cfg then textLoop cfg else x11Loop cfg
 
 configFromArgs :: Config -> IO Config
 configFromArgs cfg = getArgs >>= getOpts >>= doOpts cfg . fst

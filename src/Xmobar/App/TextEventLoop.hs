@@ -14,7 +14,7 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.App.TextEventLoop (startTextLoop) where
+module Xmobar.App.TextEventLoop (textLoop) where
 
 import Prelude hiding (lookup)
 
@@ -26,15 +26,18 @@ import Control.Concurrent.STM
 import Xmobar.System.Signal
 import Xmobar.Config.Types (Config)
 import Xmobar.X11.Parsers (Segment, Widget(..), parseString)
-import Xmobar.App.CommandThreads (initLoop)
+import Xmobar.App.CommandThreads (initLoop, loop)
 
 -- | Starts the main event loop and threads
-startTextLoop :: Config
-              -> TMVar SignalType
-              -> TMVar ()
-              -> [[([Async ()], TVar String)]]
-              -> IO ()
-startTextLoop cfg sig pauser vs = do
+textLoop :: Config -> IO ()
+textLoop conf = loop conf (startTextLoop' conf)
+
+startTextLoop' :: Config
+               -> TMVar SignalType
+               -> TMVar ()
+               -> [[([Async ()], TVar String)]]
+               -> IO ()
+startTextLoop' cfg sig pauser vs = do
     tv <- initLoop sig pauser vs
     eventLoop cfg tv sig
 

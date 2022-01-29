@@ -2,7 +2,7 @@
 
 ------------------------------------------------------------------------------
 -- |
--- Module: Xmobar.App.EventLoop
+-- Module: Xmobar.App.X11EventLoop
 -- Copyright: (c) 2018, 2020, 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
@@ -16,10 +16,10 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.App.EventLoop (startLoop) where
+module Xmobar.App.X11EventLoop (x11Loop) where
 
 import Prelude hiding (lookup)
-import Graphics.X11.Xlib hiding (textExtents, textWidth)
+import Graphics.X11.Xlib hiding (textExtents, textWidth, Segment)
 import Graphics.X11.Xlib.Extras
 import Graphics.X11.Xinerama
 import Graphics.X11.Xrandr
@@ -32,11 +32,18 @@ import Control.Concurrent.STM
 import Control.Exception (handle, SomeException(..))
 import Data.Bits
 import Data.Map hiding (foldr, map, filter)
+import qualified Data.Map as Map
+import Data.List.NonEmpty (NonEmpty(..))
+
 import Data.Maybe (fromJust, isJust)
 import qualified Data.List.NonEmpty as NE
 
 import Xmobar.System.Signal
-import Xmobar.Config.Types (persistent
+import Xmobar.Config.Types ( persistent
+                           , font
+                           , additionalFonts
+                           , textOffset
+                           , textOffsets
                            , position
                            , iconRoot
                            , Config
@@ -52,7 +59,7 @@ import Xmobar.X11.Bitmap as Bitmap
 import Xmobar.X11.Types
 import Xmobar.System.Utils (safeIndex)
 
-import Xmobar.App.CommandThreads (initLoop)
+import Xmobar.App.CommandThreads (initLoop, loop)
 
 #ifndef THREADED_RUNTIME
 import Xmobar.X11.Events(nextEvent')
@@ -66,6 +73,19 @@ runX :: XConf -> X () -> IO ()
 runX xc f = runReaderT f xc
 
 -- | Starts the main event loop and threads
+x11Loop :: Config -> IO ()
+x11Loop conf = do
+  initThreads
+  d <- openDisplay ""
+  fs <- initFont d (font conf)
+  fl <- mapM (initFont d) (additionalFonts conf)
+  let ic = Map.empty
+      to = textOffset conf
+      ts = textOffsets conf ++ replicate (length fl) (-1)
+  loop conf $ \sig lock vars -> do
+    (r,w) <- createWin d fs conf
+    startLoop (XConf d r w (fs :| fl) (to :| ts) ic conf) sig lock vars
+
 startLoop :: XConf
           -> TMVar SignalType
           -> TMVar ()
@@ -187,22 +207,17 @@ eventLoop tv xc@(XConf d r w fs vos is cfg) as signal = do
             filter (\(_, from, to) -> x >= from && x <= to) as
           eventLoop tv xc as signal
 
-updateString :: Config
-             -> TVar [String]
-             -> IO [[(Widget, TextRenderInfo, Int, Maybe [Action])]]
+updateString :: Config -> TVar [String] -> IO [[Segment]]
 updateString conf v = do
   s <- readTVarIO v
   let l:c:r:_ = s ++ repeat ""
   liftIO $ mapM (parseString conf) [l, c, r]
 
-updateActions :: XConf
-              -> Rectangle
-              -> [[(Widget, TextRenderInfo, Int, Maybe [Action])]]
+updateActions :: XConf -> Rectangle -> [[Segment]]
               -> IO [([Action], Position, Position)]
 updateActions conf (Rectangle _ _ wid _) ~[left,center,right] = do
   let (d,fs) = (display &&& fontListS) conf
-      strLn :: [(Widget, TextRenderInfo, Int, Maybe [Action])]
-            -> IO [(Maybe [Action], Position, Position)]
+      strLn :: [Segment] -> IO [(Maybe [Action], Position, Position)]
       strLn  = liftIO . mapM getCoords
       iconW i = maybe 0 Bitmap.width (lookup i $ iconS conf)
       getCoords (Text s,_,i,a) =
