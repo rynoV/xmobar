@@ -377,3 +377,12 @@ This is the list of command line options (the output of =xmobar --help=):
 
   Mail bug reports and suggestions to <mail@jao.io>
 #+end_src
+
+* Signal Handling
+
+xmobar reacts to ~SIGUSR1~ and ~SIGUSR2~:
+
+- After receiving ~SIGUSR1~ xmobar moves its position to the next screen.
+
+- After receiving ~SIGUSR2~ xmobar repositions itself on the current
+  screen.
