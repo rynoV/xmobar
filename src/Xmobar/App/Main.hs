@@ -17,37 +17,30 @@
 
 module Xmobar.App.Main (xmobar, xmobarMain, configFromArgs) where
 
-import Control.Concurrent.Async (Async, cancel)
-import Control.Concurrent.STM (newEmptyTMVarIO)
-import Control.Exception (bracket)
-import Control.Monad (unless)
-
-import Data.Foldable (for_)
 import qualified Data.Map as Map
 import Data.List (intercalate)
-import Data.Maybe (isJust)
 import System.Posix.Process (executeFile)
 import System.Environment (getArgs)
 import System.FilePath ((</>), takeBaseName, takeDirectory, takeExtension)
 import Text.Parsec.Error (ParseError)
 import Data.List.NonEmpty (NonEmpty(..))
+import Control.Monad (unless)
 
 import Graphics.X11.Xlib
 
 import Xmobar.Config.Types
 import Xmobar.Config.Parse
-import Xmobar.System.Signal (setupSignalHandler, withDeferSignals)
-import Xmobar.Run.Template
+import Xmobar.System.Signal (withDeferSignals)
+
 import Xmobar.X11.Types
 import Xmobar.X11.Text
 import Xmobar.X11.Window
 import Xmobar.App.Opts (recompileFlag, verboseFlag, getOpts, doOpts)
-import Xmobar.App.CommandThreads (startCommand, newRefreshLock, refreshLock)
+import Xmobar.App.CommandThreads (loop)
 import Xmobar.App.EventLoop (startLoop)
 import Xmobar.App.TextEventLoop (startTextLoop)
 import Xmobar.App.Compile (recompile, trace)
 import Xmobar.App.Config
-import Xmobar.App.Timer (withTimer)
 
 xXmobar :: Config -> IO ()
 xXmobar conf = withDeferSignals $ do
@@ -55,47 +48,21 @@ xXmobar conf = withDeferSignals $ do
   d <- openDisplay ""
   fs <- initFont d (font conf)
   fl <- mapM (initFont d) (additionalFonts conf)
-  cls <- mapM (parseTemplate (commands conf) (sepChar conf))
-                (splitTemplate (alignSep conf) (template conf))
-  let confSig = unSignalChan (signal conf)
-  sig <- maybe newEmptyTMVarIO pure confSig
-  unless (isJust confSig) $ setupSignalHandler sig
-  refLock <- newRefreshLock
-  withTimer (refreshLock refLock) $
-    bracket (mapM (mapM $ startCommand sig) cls)
-            cleanupThreads
-            $ \vars -> do
-      (r,w) <- createWin d fs conf
-      let ic = Map.empty
-          to = textOffset conf
-          ts = textOffsets conf ++ replicate (length fl) (-1)
-      startLoop (XConf d r w (fs :| fl) (to :| ts) ic conf) sig refLock vars
+  let ic = Map.empty
+      to = textOffset conf
+      ts = textOffsets conf ++ replicate (length fl) (-1)
+  loop conf $ \sig lock vars -> do
+    (r,w) <- createWin d fs conf
+    startLoop (XConf d r w (fs :| fl) (to :| ts) ic conf) sig lock vars
 
 textXmobar :: Config -> IO ()
-textXmobar conf = withDeferSignals $ do
-  initThreads
-  cls <- mapM (parseTemplate (commands conf) (sepChar conf))
-                (splitTemplate (alignSep conf) (template conf))
-  let confSig = unSignalChan (signal conf)
-  sig <- maybe newEmptyTMVarIO pure confSig
-  unless (isJust confSig) $ setupSignalHandler sig
-  refLock <- newRefreshLock
-  withTimer (refreshLock refLock) $
-    bracket (mapM (mapM $ startCommand sig) cls)
-            cleanupThreads
-            $ \vars -> do
-      startTextLoop conf sig refLock vars
+textXmobar conf = loop conf (startTextLoop conf)
 
 xmobar :: Config -> IO ()
 xmobar cfg = if textOutput cfg then textXmobar cfg else xXmobar cfg
 
 configFromArgs :: Config -> IO Config
 configFromArgs cfg = getArgs >>= getOpts >>= doOpts cfg . fst
-
-cleanupThreads :: [[([Async ()], a)]] -> IO ()
-cleanupThreads vars =
-  for_ (concat vars) $ \(asyncs, _) ->
-    for_ asyncs cancel
 
 buildLaunch :: [String] -> Bool -> Bool -> String -> ParseError -> IO ()
 buildLaunch args verb force p e = do

@@ -4,7 +4,7 @@
 ------------------------------------------------------------------------------
 -- |
 -- Module: Xmobar.X11.Draw
--- Copyright: (c) 2018, 2020 Jose Antonio Ortega Ruiz
+-- Copyright: (c) 2018, 2020, 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
 -- Maintainer: jao@gnu.org
@@ -149,9 +149,7 @@ printStrings dr gc fontlist voffs offs a boxes sl@((s,c,i,l):xs) = do
                  C -> (remWidth + offs) `div` 2
                  R -> remWidth
                  L -> offs
-      (fc,bc) = case break (==',') (tColorsString c) of
-                 (f,',':b) -> (f, b           )
-                 (f,    _) -> (f, bgColor conf)
+      (fc,bc) = colorComponents conf (tColorsString c)
   valign <- verticalOffset ht s fontst voff conf
   let (ht',ay) = case (tBgTopOffset c, tBgBottomOffset c) of
                    (-1,_)  -> (0, -1)

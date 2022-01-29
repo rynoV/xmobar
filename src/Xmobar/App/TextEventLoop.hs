@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-
 ------------------------------------------------------------------------------
 -- |
 -- Module: Xmobar.App.TextEventLoop
@@ -21,21 +19,14 @@ module Xmobar.App.TextEventLoop (startTextLoop) where
 import Prelude hiding (lookup)
 
 import Control.Monad.Reader
-import Control.Concurrent
+
 import Control.Concurrent.Async (Async)
 import Control.Concurrent.STM
-import Control.Exception (handle, SomeException(..))
 
 import Xmobar.System.Signal
 import Xmobar.Config.Types (Config)
-
-import Xmobar.X11.Parsers (parseStringAsText)
-
-import Xmobar.App.CommandThreads (refreshLockT)
-
-#ifdef DBUS
-import Xmobar.System.DBus
-#endif
+import Xmobar.X11.Parsers (Segment, Widget(..), parseString)
+import Xmobar.App.CommandThreads (initLoop)
 
 -- | Starts the main event loop and threads
 startTextLoop :: Config
@@ -44,33 +35,8 @@ startTextLoop :: Config
               -> [[([Async ()], TVar String)]]
               -> IO ()
 startTextLoop cfg sig pauser vs = do
-    tv <- newTVarIO []
-    _ <- forkIO (handle (handler "checker") (checker tv [] vs sig pauser))
-#ifdef DBUS
-    runIPC sig
-#endif
+    tv <- initLoop sig pauser vs
     eventLoop cfg tv sig
-  where
-    handler thing (SomeException e) =
-      void $ putStrLn ("Thread " ++ thing ++ " failed: " ++ show e)
-
--- | Send signal to eventLoop every time a var is updated
-checker :: TVar [String]
-           -> [String]
-           -> [[([Async ()], TVar String)]]
-           -> TMVar SignalType
-           -> TMVar ()
-           -> IO ()
-checker tvar ov vs signal pauser = do
-      nval <- atomically $ refreshLockT pauser $ do
-              nv <- mapM concatV vs
-              guard (nv /= ov)
-              writeTVar tvar nv
-              return nv
-      atomically $ putTMVar signal Wakeup
-      checker tvar nval vs signal pauser
-    where
-      concatV = fmap concat . mapM (readTVar . snd)
 
 -- | Continuously wait for a signal from a thread or a interrupt handler
 eventLoop :: Config -> TVar [String] -> TMVar SignalType -> IO ()
@@ -85,3 +51,14 @@ updateString conf v = do
   s <- readTVarIO v
   let l:c:r:_ = s ++ repeat ""
   liftIO $ concat `fmap` mapM (parseStringAsText conf) [l, c, r]
+
+asText :: Segment -> String
+asText (Text s, _, _, _) = s
+asText (Hspace n, _, _, _) = replicate (fromIntegral n) ' '
+asText _ = ""
+
+parseStringAsText :: Config -> String -> IO String
+parseStringAsText c s = do
+  segments <- parseString c s
+  let txts = map asText segments
+  return (concat txts)

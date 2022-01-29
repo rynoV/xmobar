@@ -52,7 +52,7 @@ import Xmobar.X11.Bitmap as Bitmap
 import Xmobar.X11.Types
 import Xmobar.System.Utils (safeIndex)
 
-import Xmobar.App.CommandThreads (refreshLockT)
+import Xmobar.App.CommandThreads (initLoop)
 
 #ifndef THREADED_RUNTIME
 import Xmobar.X11.Events(nextEvent')
@@ -60,10 +60,6 @@ import Xmobar.X11.Events(nextEvent')
 
 #ifdef XFT
 import Graphics.X11.Xft
-#endif
-
-#ifdef DBUS
-import Xmobar.System.DBus
 #endif
 
 runX :: XConf -> X () -> IO ()
@@ -79,15 +75,11 @@ startLoop xcfg@(XConf _ _ w _ _ _ _) sig pauser vs = do
 #ifdef XFT
     xftInitFtLibrary
 #endif
-    tv <- newTVarIO []
-    _ <- forkIO (handle (handler "checker") (checker tv [] vs sig pauser))
+    tv <- initLoop sig pauser vs
 #ifdef THREADED_RUNTIME
     _ <- forkOS (handle (handler "eventer") (eventer sig))
 #else
     _ <- forkIO (handle (handler "eventer") (eventer sig))
-#endif
-#ifdef DBUS
-    runIPC sig
 #endif
     eventLoop tv xcfg [] sig
   where
@@ -114,25 +106,6 @@ startLoop xcfg@(XConf _ _ w _ _ _ _) sig pauser vs = do
             ButtonEvent {} -> atomically $
                    putTMVar signal (Action (ev_button ev) (fi $ ev_x ev))
             _ -> return ()
-
--- | Send signal to eventLoop every time a var is updated
-checker :: TVar [String]
-           -> [String]
-           -> [[([Async ()], TVar String)]]
-           -> TMVar SignalType
-           -> TMVar ()
-           -> IO ()
-checker tvar ov vs signal pauser = do
-      nval <- atomically $ refreshLockT pauser $ do
-              nv <- mapM concatV vs
-              guard (nv /= ov)
-              writeTVar tvar nv
-              return nv
-      atomically $ putTMVar signal Wakeup
-      checker tvar nval vs signal pauser
-    where
-      concatV = fmap concat . mapM (readTVar . snd)
-
 
 -- | Continuously wait for a signal from a thread or a interrupt handler
 eventLoop :: TVar [String]
