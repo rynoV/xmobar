@@ -17,6 +17,7 @@
 module Xmobar.App.TextEventLoop (textLoop) where
 
 import Prelude hiding (lookup)
+import System.IO
 import Data.List (intercalate)
 
 import Control.Monad.Reader
@@ -39,6 +40,8 @@ startTextLoop' :: Config
                -> [[([Async ()], TVar String)]]
                -> IO ()
 startTextLoop' cfg sig pauser vs = do
+    hSetBuffering stdin LineBuffering
+    hSetBuffering stdout LineBuffering
     tv <- initLoop sig pauser vs
     eventLoop cfg tv sig
 
