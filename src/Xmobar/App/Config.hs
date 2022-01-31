@@ -66,7 +66,7 @@ defaultConfig =
            , verbose = False
            , signal = SignalChan Nothing
            , textOutput = False
-           , ansiColors = True
+           , textOutputColors = Ansi
            }
 
 -- | Return the path to the xmobar data directory.  This directory is

@@ -17,6 +17,7 @@
 module Xmobar.App.TextEventLoop (textLoop) where
 
 import Prelude hiding (lookup)
+import Text.Printf
 import System.IO
 import Data.List (intercalate)
 
@@ -26,7 +27,7 @@ import Control.Concurrent.Async (Async)
 import Control.Concurrent.STM
 
 import Xmobar.System.Signal
-import Xmobar.Config.Types (Config, ansiColors)
+import Xmobar.Config.Types (Config(textOutputColors), TextColorFormat(..))
 import Xmobar.X11.Parsers (Segment, Widget(..), parseString, tColorsString, colorComponents)
 import Xmobar.App.CommandThreads (initLoop, loop)
 
@@ -84,10 +85,33 @@ withAnsiColor (fg, bg) s = wrap "38;" fg (wrap "48;" bg s)
           then w
           else "\x1b[" ++ cd ++ ansiCode cl ++ "m" ++ w ++ "\x1b[0m"
 
+replaceAll :: (Eq a) => a -> [a] -> [a] -> [a]
+replaceAll c s = concatMap (\x -> if x == c then s else [x])
+
+xmlEscape :: String -> String
+xmlEscape s = replaceAll '"' "&quot;" $
+              replaceAll '\'' "&apos;" $
+              replaceAll '<' "&lt;" $
+              replaceAll '>' "&gt;" $
+              replaceAll '&' "&amp;" s
+
+withPangoColor :: (String, String) -> String -> String
+withPangoColor (fg, bg) s =
+  printf fmt (xmlEscape fg) (xmlEscape bg) (xmlEscape s)
+  where fmt = "<span foreground=\"%s\" background=\"%s\">%s</span>"
+
+withColor :: TextColorFormat -> (String, String) -> String -> String
+withColor format color = case format of
+                           NoColors -> id
+                           Ansi -> withAnsiColor color
+                           Pango -> withPangoColor color
+                                
+
 asText :: Config -> Segment -> String
 asText conf (Text s, info, _, _) =
-  if null color then s else withAnsiColor (colorComponents conf color) s
-  where color = if ansiColors conf then tColorsString info else ""
+  withColor (textOutputColors conf) components s
+  where components = colorComponents conf color
+        color = tColorsString info
 asText colors (Hspace n, i, x, y) =
   asText colors (Text $ replicate (fromIntegral n) ' ', i, x, y)
 asText _ _ = ""

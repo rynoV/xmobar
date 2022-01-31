@@ -62,7 +62,7 @@ parseConfig defaultConfig =
       perms = permute $ Config
               <$?> pFont <|?> pFontList <|?> pWmClass <|?> pWmName
               <|?> pBgColor <|?> pFgColor <|?> pPosition
-              <|?> pTextOutput <|?> pAnsiColors
+              <|?> pTextOutput <|?> pTextOutputColors
               <|?> pTextOffset <|?> pTextOffsets
               <|?> pIconOffset <|?> pBorder
               <|?> pBdColor <|?> pBdWidth <|?> pAlpha <|?> pHideOnStart
@@ -71,17 +71,18 @@ parseConfig defaultConfig =
               <|?> pCommands <|?> pSepChar <|?> pAlignSep <|?> pTemplate
               <|?> pVerbose <|?> pSignal
 
-      fields    = [ "font", "additionalFonts","bgColor", "fgColor"
+      fields    = [ "font", "additionalFonts", "bgColor", "fgColor"
                   , "wmClass", "wmName", "sepChar"
                   , "alignSep" , "border", "borderColor" ,"template"
                   , "position" , "textOffset", "textOffsets", "iconOffset"
                   , "allDesktops", "overrideRedirect", "pickBroadest"
                   , "hideOnStart", "lowerOnStart", "persistent", "iconRoot"
                   , "alpha", "commands", "verbose", "signal", "textOutput"
+                  , "textOutputColors"
                   ]
 
       pTextOutput = readField textOutput "textOutput"
-      pAnsiColors = readField textOutput "textAnsiColors"
+      pTextOutputColors = readField textOutputColors "textOutputColors"
       pFont = strField font "font"
       pFontList = strListField additionalFonts "additionalFonts"
       pWmClass = strField wmClass "wmClass"

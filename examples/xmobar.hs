@@ -49,6 +49,7 @@ config = defaultConfig {
   , iconRoot = "."
   , allDesktops = True
   , overrideRedirect = True
+  , textOutputColors = Ansi
   , commands = [ Run $ Weather "EGPH" ["-t","<station>: <tempC>C",
                                         "-L","18","-H","25",
                                         "--normal","green",
