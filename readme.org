@@ -8,7 +8,8 @@
 
   Xmobar was inspired by the [[http://tuomov.iki.fi/software/][Ion3]] status bar, and supports similar
   features, like dynamic color management, icons, output templates,
-  and extensibility through plugins.
+  and extensibility through plugins.  It is also able to write to
+  standard output, optionally with color escape sequences.
 
   These are some xmobar [[file:doc/screenshots][screenshots]] using the author's configuration:
 
@@ -18,67 +19,68 @@
 
 [[file:doc/screenshots/xmobar-exwm.png]]
 
-  Check the [[./changelog.md][the change log]] for our release history.
+  Check [[./changelog.md][the change log]] for our release history.  We also have an IRC
+  channel, ~#xmobar~ at [[ircs://irc.libera.chat][Libera]].
 
 * Installation
-** From your system's package manager
+*** From your system's package manager
 
-   Xmobar is probably available from your distributions package
-   manager!  Most distributions compile xmobar with the =all_extensions=
-   flag, so you don't have to.
+    Xmobar is probably available from your distributions package
+    manager!  Most distributions compile xmobar with the =all_extensions=
+    flag, so you don't have to.
 
-*** Arch Linux
+***** Arch Linux
 
-#+begin_src shell
-  pacman -S xmobar
-#+end_src
+  #+begin_src shell
+    pacman -S xmobar
+  #+end_src
 
-*** Debian/Ubuntu based
+***** Debian/Ubuntu based
 
-#+begin_src shell
-  apt install xmobar
-#+end_src
+  #+begin_src shell
+    apt install xmobar
+  #+end_src
 
-*** OpenSUSE
+***** OpenSUSE
 
-#+begin_src shell
-  zypper install xmobar
-#+end_src
+  #+begin_src shell
+    zypper install xmobar
+  #+end_src
 
-*** Void Linux
+***** Void Linux
 
-#+begin_src shell
-  xbps-install xmobar
-#+end_src
+  #+begin_src shell
+    xbps-install xmobar
+  #+end_src
 
-*** Gentoo
-#+begin_src shell
-  emerge --ask xmobar
-#+end_src
+***** Gentoo
+  #+begin_src shell
+    emerge --ask xmobar
+  #+end_src
 
-** Using cabal-install
+*** Using cabal-install
 
-   Xmobar is available from [[http://hackage.haskell.org/package/xmobar/][Hackage]], and you can install it using
-   =cabal-install=:
+    Xmobar is available from [[http://hackage.haskell.org/package/xmobar/][Hackage]], and you can install it using
+    =cabal-install=:
 
-   #+begin_src shell
-     cabal install xmobar
-   #+end_src
+    #+begin_src shell
+      cabal install xmobar
+    #+end_src
 
-   Starting with version 0.35.1, xmobar now requires at least GHC
-   version 8.4.x. to build. See [[https://github.com/jaor/xmobar/issues/461][this issue]] for more information.
+    Starting with version 0.35.1, xmobar now requires at least GHC
+    version 8.4.x. to build. See [[https://github.com/jaor/xmobar/issues/461][this issue]] for more information.
 
-   See [[file:doc/compiling.org][compiling]] for a list of optional compilation flags that will
-   enable some optional plugins. For instance, to install xmobar with
-   all the bells and whistles (this is probably what you want), use:
+    See [[file:doc/compiling.org][compiling]] for a list of optional compilation flags that will
+    enable some optional plugins. For instance, to install xmobar with
+    all the bells and whistles (this is probably what you want), use:
 
-   #+begin_src shell
-     cabal install xmobar --flags="all_extensions"
-   #+end_src
+    #+begin_src shell
+      cabal install xmobar --flags="all_extensions"
+    #+end_src
 
-** From source
+*** From source
 
-   See [[file:doc/compiling.org][compiling]].
+    See [[file:doc/compiling.org][compiling]].
 
 * Running xmobar
 
@@ -97,6 +99,25 @@
   if you have the default configuration file saved as
   =$XDG_CONFIG_HOME/xmobar/xmobarrc= (defaulting to
   =~/.config/xmobar/xmobarrc=), or =~/.xmobarrc=.
+
+*** Running xmobar in text mode
+
+    By default, xmobar will run as an X11 application, in a docked
+    window, but it is possible to redirect xmobar's to the standard
+    output, optionally with color escape sequences.  In this mode,
+    xmobar can be run inside a terminal o console, or its output piped
+    to other applications, and there is no need for an X11 display
+    (so, for instance, you could pipe xmobar's output to a Wayland
+    application, such as waybar.)
+
+    To run xmobar in text mode, either pass the =-T= flag to its
+    invocation:
+
+    #+begin_src shell
+      xmobar -T /path/to/config &
+    #+end_src
+
+    or set the parameter =textOutput= to True in its configuration.
 
 * Configuration and further Links
 
@@ -125,36 +146,37 @@
   Ben Boeckel, Ivan Brennan, Duncan Burke, Roman Cheplyaka, Patrick
   Chilton, Antoine Eiche, Nathaniel Wesley Filardo, Guy Gastineau,
   John Goerzen, Reto Hablützel, Juraj Hercek, Tomáš Janoušek, Ada
-  Joule, Spencer Janssen, Roman Joost, Jochen Keil, Sam Kirby, Lennart
-  Kolmodin, Krzysztof Kosciuszkiewicz, Dmitry Kurochkin, Todd Lunter,
-  Vanessa McHale, Robert J. Macomber, Dmitry Malikov, David McLean,
-  Joan MIlev, Marcin Mikołajczyk, Dino Morelli, Tony Morris, Eric
-  Mrak, Thiago Negri, Edward O'Callaghan, Svein Ove, Martin Perner,
-  Jens Petersen, Alexander Polakov, Sibi Prabakaran, Pavan Rikhi, Petr
-  Rockai, Andrew Emmanuel Rosa, Sackville-West, Amir Saeid, Markus
-  Scherer, Daniel Schüssler, Olivier Schneider, Alexander Shabalin,
-  Valentin Shirokov, Peter Simons, Alexander Solovyov, Will Song, John
-  Soo, John Soros, Felix Springer, Travis Staton, Artem Tarasov,
-  Samuli Thomasson, Edward Tjörnhammar, Sergei Trofimovich, Thomas
-  Tuegel, John Tyree, Jan Vornberger, Anton Vorontsov, Daniel Wagner,
-  Zev Weiss, Phil Xiaojun Hu, Nikolay Yakimov, Edward Z. Yang, Leo
-  Zhang, Norbert Zeh, and Michal Zielonka.
+  Joule, Spencer Janssen, Roman Joost, Pavel Kalugin, Jochen Keil, Sam
+  Kirby, Lennart Kolmodin, Krzysztof Kosciuszkiewicz, Dmitry
+  Kurochkin, Todd Lunter, Vanessa McHale, Robert J. Macomber, Dmitry
+  Malikov, David McLean, Joan MIlev, Marcin Mikołajczyk, Dino Morelli,
+  Tony Morris, Eric Mrak, Thiago Negri, Edward O'Callaghan, Svein Ove,
+  Martin Perner, Jens Petersen, Alexander Polakov, Sibi Prabakaran,
+  Pavan Rikhi, Petr Rockai, Andrew Emmanuel Rosa, Sackville-West, Amir
+  Saeid, Markus Scherer, Daniel Schüssler, Olivier Schneider,
+  Alexander Shabalin, Valentin Shirokov, Peter Simons, Alexander
+  Solovyov, Will Song, John Soo, John Soros, Felix Springer, Travis
+  Staton, Artem Tarasov, Samuli Thomasson, Edward Tjörnhammar, Sergei
+  Trofimovich, Thomas Tuegel, John Tyree, Jan Vornberger, Anton
+  Vorontsov, Daniel Wagner, Zev Weiss, Phil Xiaojun Hu, Nikolay
+  Yakimov, Edward Z. Yang, Leo Zhang, Norbert Zeh, and Michal
+  Zielonka.
 
-** Thanks
+*** Thanks
 
-*Andrea Rossato*:
+  *Andrea Rossato*:
 
-Thanks to Robert Manea and Spencer Janssen for their help in
-understanding how X works. They gave me suggestions on how to solve many
-problems with xmobar.
+  Thanks to Robert Manea and Spencer Janssen for their help in
+  understanding how X works. They gave me suggestions on how to solve many
+  problems with xmobar.
 
-Thanks to Claus Reinke for make me understand existential types (or at
-least for letting me think I grasp existential types...;-).
+  Thanks to Claus Reinke for make me understand existential types (or at
+  least for letting me think I grasp existential types...;-).
 
-*jao*:
+  *jao*:
 
-Thanks to Andrea for creating xmobar in the first place, and for giving
-me the chance to contribute.
+  Thanks to Andrea for creating xmobar in the first place, and for giving
+  me the chance to contribute.
 
 
 * License

@@ -1,3 +1,7 @@
+## Version 0.42 (unreleased)
+
+  - New text mode (thanks to Pavel Kagulin, see issue #601)
+
 ## Version 0.41 (January, 2022)
 
 _New features_
