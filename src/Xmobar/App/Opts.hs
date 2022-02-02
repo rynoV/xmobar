@@ -33,25 +33,25 @@ data Opts = Help
           | Verbose
           | Recompile
           | Version
-          | TextOutput
-          | Font       String
-          | AddFont    String
-          | BgColor    String
-          | FgColor    String
-          | Alpha      String
+          | TextOutput (Maybe String)
+          | Font String
+          | AddFont String
+          | BgColor String
+          | FgColor String
+          | Alpha String
           | T
           | B
           | D
-          | AlignSep   String
-          | Commands   String
+          | AlignSep String
+          | Commands String
           | AddCommand String
-          | SepChar    String
-          | Template   String
-          | OnScr      String
-          | IconRoot   String
-          | Position   String
-          | WmClass    String
-          | WmName     String
+          | SepChar String
+          | Template String
+          | OnScr String
+          | IconRoot String
+          | Position String
+          | WmClass String
+          | WmName String
        deriving (Show, Eq)
 
 options :: [OptDescr Opts]
@@ -60,9 +60,11 @@ options =
     , Option "v" ["verbose"] (NoArg Verbose) "Emit verbose debugging messages"
     , Option "r" ["recompile"] (NoArg Recompile) "Force recompilation"
     , Option "V" ["version"] (NoArg Version) "Show version information"
-    , Option "T" ["text"] (NoArg TextOutput) "Write text-only output to stdout"
+    , Option "T" ["text"] (OptArg TextOutput "color")
+             "Write text-only output to stdout. NoColors/Ansi/Pango"
     , Option "f" ["font"] (ReqArg Font "font name") "Font name"
-    , Option "N" ["add-font"] (ReqArg AddFont "font name") "Add to the list of additional fonts"
+    , Option "N" ["add-font"] (ReqArg AddFont "font name")
+             "Add to the list of additional fonts"
     , Option "w" ["wmclass"] (ReqArg WmClass "class") "X11 WM_CLASS property"
     , Option "n" ["wmname"] (ReqArg WmName "name") "X11 WM_NAME property"
     , Option "B" ["bgcolor"] (ReqArg BgColor "bg color" )
@@ -132,7 +134,10 @@ doOpts conf (o:oo) =
     Help -> doOpts' conf
     Version -> doOpts' conf
     Recompile -> doOpts' conf
-    TextOutput -> doOpts' (conf {textOutput = True})
+    TextOutput s -> doOpts' $ case s of
+                                Just fmt -> conf {textOutput = True,
+                                                  textOutputColors = read fmt}
+                                Nothing -> conf {textOutput = True}
     Verbose -> doOpts' (conf {verbose = True})
     Font s -> doOpts' (conf {font = s})
     AddFont s -> doOpts' (conf {additionalFonts = additionalFonts conf ++ [s]})

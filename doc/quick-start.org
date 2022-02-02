@@ -151,10 +151,10 @@ the =Config= block in your configuration.
 
 - =template= The output template.
 
-- =wmClass= The value for the window's X11 WM_CLASS property. Defaults
+- =wmClass= The value for the window's X11 ~WM_CLASS~ property. Defaults
   to "xmobar".
 
-- =wmName= The value for the window's X11 WM_NAME property. Defaults to
+- =wmName= The value for the window's X11 ~WM_NAME~ property. Defaults to
   "xmobar".
 
 - =textOutput= When True, instead of running as an X11 application,
@@ -164,7 +164,7 @@ the =Config= block in your configuration.
 
 - =textOutputColors= NoColors, Ansi or Pango, to emit, when in text
   mode, escape color sequences using ANSI controls (for terminals) or
-  pango markup.  Default is Ansi.
+  pango markup.  Default is NoColors.
 
 ** The Output =template=
 
@@ -383,7 +383,7 @@ This is the list of command line options (the output of =xmobar --help=):
     -C command    --add-command=command  Add to the list of commands to be executed
     -x screen     --screen=screen        On which X screen number to start
     -p position   --position=position    Specify position of xmobar. Same syntax as in config file
-    -T            --text                 Write output to stdout
+    -T [format]   --text[=format]        Write output to stdout
 
   Mail bug reports and suggestions to <mail@jao.io>
 #+end_src

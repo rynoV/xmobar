@@ -108,7 +108,7 @@
     xmobar can be run inside a terminal o console, or its output piped
     to other applications, and there is no need for an X11 display
     (so, for instance, you could pipe xmobar's output to a Wayland
-    application, such as waybar.)
+    application, such as swaybar.)
 
     To run xmobar in text mode, either pass the =-T= flag to its
     invocation:
@@ -117,7 +117,29 @@
       xmobar -T /path/to/config &
     #+end_src
 
-    or set the parameter =textOutput= to True in its configuration.
+    or set the parameter =textOutput= to True in its configuration.  You
+    can also specify the format of color escapes, for instance
+    omitting them altogether with ~NoColors~:
+
+    #+begin_src shell
+      xmobar -TNoColors /path/to/config &
+    #+end_src
+
+    Other options are ~Ansi~ and ~Pango~.
+
+*** Using xmobar in Wayland with swaybar
+
+    In text mode, xmobar can be told to ouput its information using
+    pango markup for colors, and it that way you can use it with
+    swaybar.  Here's a minimal ~bar~ configuration for sway's
+    configuration file:
+
+    #+begin_src conf
+      bar {
+        status_command xmobar -TPango
+        pango_markup enabled
+      }
+    #+end_src
 
 * Configuration and further Links
 
