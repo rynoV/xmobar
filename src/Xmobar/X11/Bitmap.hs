@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  X11.Bitmap
--- Copyright   :  (C) 2013, 2015, 2017, 2018 Alexander Polakov
+-- Copyright   :  (C) 2013, 2015, 2017, 2018, 2022 Alexander Polakov
 -- License     :  BSD3
 --
 -- Maintainer  :  jao@gnu.org
@@ -23,9 +23,9 @@ import Graphics.X11.Xlib
 import System.Directory (doesFileExist)
 import System.FilePath ((</>))
 import System.Mem.Weak ( addFinalizer )
+import Xmobar.Run.Actions (Action)
 import Xmobar.X11.ColorCache
 import Xmobar.X11.Parsers (TextRenderInfo(..), Widget(..))
-import Xmobar.X11.Actions (Action)
 
 #ifdef XPM
 import Xmobar.X11.XPMFile(readXPMFile)

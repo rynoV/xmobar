@@ -50,7 +50,7 @@ import Xmobar.Config.Types ( persistent
                            , Align(..)
                            , XPosition(..))
 
-import Xmobar.X11.Actions
+import Xmobar.Run.Actions
 import Xmobar.X11.Parsers
 import Xmobar.X11.Window
 import Xmobar.X11.Text

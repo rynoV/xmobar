@@ -113,6 +113,7 @@ library
                    Xmobar.Run.Template,
                    Xmobar.Run.Exec,
                    Xmobar.Run.Runnable
+                   Xmobar.Run.Actions,
                    Xmobar.App.CommandThreads,
                    Xmobar.App.X11EventLoop,
                    Xmobar.App.TextEventLoop,
@@ -127,7 +128,6 @@ library
                    Xmobar.System.Localize,
                    Xmobar.System.Signal,
                    Xmobar.System.Kbd,
-                   Xmobar.X11.Actions,
                    Xmobar.X11.Events,
                    Xmobar.X11.Parsers,
                    Xmobar.X11.Types,

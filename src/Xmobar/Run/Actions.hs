@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Xmobar.Actions
+-- Module      :  Xmobar.Run.Actions
 -- Copyright   :  (c) Alexander Polakov
 -- License     :  BSD-style (see LICENSE)
 --
@@ -10,12 +10,14 @@
 --
 -----------------------------------------------------------------------------
 
-module Xmobar.X11.Actions (Action(..), runAction, stripActions) where
+module Xmobar.Run.Actions (Button, Action(..), runAction, stripActions) where
 
 import System.Process (system)
 import Control.Monad (void)
 import Text.Regex (Regex, subRegex, mkRegex, matchRegex)
-import Graphics.X11.Types (Button)
+import Data.Word (Word32)
+
+type Button = Word32
 
 data Action = Spawn [Button] String
                 deriving (Eq, Show)
