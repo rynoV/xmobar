@@ -4,12 +4,13 @@
 
   Xmobar is a minimalistic status bar. It was originally designed and
   implemented by Andrea Rossato to work with [[http://xmonad.org][xmonad]], but it is
-  actually usable with any window manager.
+  actually usable with any window manager in X11 and also (via its
+  text output mode) Wayland.
 
   Xmobar was inspired by the [[http://tuomov.iki.fi/software/][Ion3]] status bar, and supports similar
   features, like dynamic color management, icons, output templates,
   and extensibility through plugins.  It is also able to write to
-  standard output, optionally with color escape sequences.
+  standard output, in a variety of formats.
 
   These are some xmobar [[file:doc/screenshots][screenshots]] using the author's configuration:
 
@@ -118,7 +119,7 @@
     #+end_src
 
     or set the parameter =textOutput= to True in its configuration.  You
-    can also specify the format of color escapes, for instance
+    can also specify the format of color escapes, for instance,
     omitting them altogether with ~Plain~:
 
     #+begin_src shell

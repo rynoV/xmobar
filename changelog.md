@@ -1,6 +1,9 @@
 ## Version 0.42 (unreleased)
 
-  - New text mode (thanks to Pavel Kagulin, see issue #601)
+_New features_
+
+  - New text mode (thanks to Pavel Kagulin, see issue #601), with
+    output formats compatible with color terminals and sway.
 
 ## Version 0.41 (January, 2022)
 
