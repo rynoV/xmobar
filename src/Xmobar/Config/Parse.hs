@@ -62,7 +62,7 @@ parseConfig defaultConfig =
       perms = permute $ Config
               <$?> pFont <|?> pFontList <|?> pWmClass <|?> pWmName
               <|?> pBgColor <|?> pFgColor <|?> pPosition
-              <|?> pTextOutput <|?> pTextOutputColors
+              <|?> pTextOutput <|?> pTextOutputFormat
               <|?> pTextOffset <|?> pTextOffsets
               <|?> pIconOffset <|?> pBorder
               <|?> pBdColor <|?> pBdWidth <|?> pAlpha <|?> pHideOnStart
@@ -78,11 +78,11 @@ parseConfig defaultConfig =
                   , "allDesktops", "overrideRedirect", "pickBroadest"
                   , "hideOnStart", "lowerOnStart", "persistent", "iconRoot"
                   , "alpha", "commands", "verbose", "signal", "textOutput"
-                  , "textOutputColors"
+                  , "textOutputFormat"
                   ]
 
       pTextOutput = readField textOutput "textOutput"
-      pTextOutputColors = readField textOutputColors "textOutputColors"
+      pTextOutputFormat = readField textOutputFormat "textOutputFormat"
       pFont = strField font "font"
       pFontList = strListField additionalFonts "additionalFonts"
       pWmClass = strField wmClass "wmClass"

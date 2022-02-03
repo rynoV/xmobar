@@ -27,7 +27,7 @@ import Control.Concurrent.Async (Async)
 import Control.Concurrent.STM
 
 import Xmobar.System.Signal
-import Xmobar.Config.Types (Config(textOutputColors), TextColorFormat(..))
+import Xmobar.Config.Types (Config(textOutputFormat), TextOutputFormat(..))
 import Xmobar.X11.Parsers (Segment, Widget(..), parseString, tColorsString, colorComponents)
 import Xmobar.App.CommandThreads (initLoop, loop)
 
@@ -100,16 +100,16 @@ withPangoColor (fg, bg) s =
   printf fmt (xmlEscape fg) (xmlEscape bg) (xmlEscape s)
   where fmt = "<span foreground=\"%s\" background=\"%s\">%s</span>"
 
-withColor :: TextColorFormat -> (String, String) -> String -> String
+withColor :: TextOutputFormat -> (String, String) -> String -> String
 withColor format color = case format of
-                           NoColors -> id
+                           Plain -> id
                            Ansi -> withAnsiColor color
                            Pango -> withPangoColor color
-                                
+
 
 asText :: Config -> Segment -> String
 asText conf (Text s, info, _, _) =
-  withColor (textOutputColors conf) components s
+  withColor (textOutputFormat conf) components s
   where components = colorComponents conf color
         color = tColorsString info
 asText colors (Hspace n, i, x, y) =

@@ -16,7 +16,7 @@ module Xmobar.Config.Types
     ( -- * Configuration
       -- $config
       Config (..)
-    , XPosition (..), Align (..), Border (..), TextColorFormat (..)
+    , XPosition (..), Align (..), Border (..), TextOutputFormat (..)
     , SignalChan (..)
     ) where
 
@@ -37,7 +37,7 @@ data Config =
            , fgColor :: String      -- ^ Default font color
            , position :: XPosition  -- ^ Top Bottom or Static
            , textOutput :: Bool     -- ^ Write data to stdout instead of X
-           , textOutputColors :: TextColorFormat -- ^ Which color format to use for stdout: Ansi or Pango
+           , textOutputFormat :: TextOutputFormat -- ^ Which color format to use for stdout: Ansi or Pango
            , textOffset :: Int      -- ^ Offset from top of window for text
            , textOffsets :: [Int]   -- ^ List of offsets for additionalFonts
            , iconOffset :: Int      -- ^ Offset from top of window for icons
@@ -98,7 +98,7 @@ data Border = NoBorder
             | FullBM Int
               deriving ( Read, Show, Eq )
 
-data TextColorFormat = NoColors | Ansi | Pango deriving ( Read, Show, Eq )
+data TextOutputFormat = Plain | Ansi | Pango deriving ( Read, Show, Eq )
 
 newtype SignalChan = SignalChan { unSignalChan :: Maybe (STM.TMVar SignalType) }
 

@@ -162,9 +162,9 @@ the =Config= block in your configuration.
   this mode, icon and action specifications are ignored.  Default is
   False.
 
-- =textOutputColors= NoColors, Ansi or Pango, to emit, when in text
+- =textOutputFormat= Plain, Ansi or Pango, to emit, when in text
   mode, escape color sequences using ANSI controls (for terminals) or
-  pango markup.  Default is NoColors.
+  pango markup.  Default is Plain.
 
 ** The Output =template=
 

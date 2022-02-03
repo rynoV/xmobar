@@ -61,7 +61,7 @@ options =
     , Option "r" ["recompile"] (NoArg Recompile) "Force recompilation"
     , Option "V" ["version"] (NoArg Version) "Show version information"
     , Option "T" ["text"] (OptArg TextOutput "color")
-             "Write text-only output to stdout. NoColors/Ansi/Pango"
+             "Write text-only output to stdout. Plain/Ansi/Pango"
     , Option "f" ["font"] (ReqArg Font "font name") "Font name"
     , Option "N" ["add-font"] (ReqArg AddFont "font name")
              "Add to the list of additional fonts"
@@ -136,7 +136,7 @@ doOpts conf (o:oo) =
     Recompile -> doOpts' conf
     TextOutput s -> doOpts' $ case s of
                                 Just fmt -> conf {textOutput = True,
-                                                  textOutputColors = read fmt}
+                                                  textOutputFormat = read fmt}
                                 Nothing -> conf {textOutput = True}
     Verbose -> doOpts' (conf {verbose = True})
     Font s -> doOpts' (conf {font = s})

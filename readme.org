@@ -119,10 +119,10 @@
 
     or set the parameter =textOutput= to True in its configuration.  You
     can also specify the format of color escapes, for instance
-    omitting them altogether with ~NoColors~:
+    omitting them altogether with ~Plain~:
 
     #+begin_src shell
-      xmobar -TNoColors /path/to/config &
+      xmobar -TPlain /path/to/config &
     #+end_src
 
     Other options are ~Ansi~ and ~Pango~.
