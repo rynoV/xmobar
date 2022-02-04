@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 -- |
--- Module: Xmobar.App.TextEventLoop
+-- Module: Xmobar.Text.Loop
 -- Copyright: (c) 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
@@ -14,7 +14,7 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.App.TextEventLoop (textLoop) where
+module Xmobar.Text.Loop (loop) where
 
 import Prelude hiding (lookup)
 import Text.Printf
@@ -28,7 +28,7 @@ import Control.Concurrent.STM
 
 import Xmobar.System.Signal
 import Xmobar.Config.Types (Config(textOutputFormat), TextOutputFormat(..))
-import Xmobar.Run.Loop (initLoop, loop)
+import qualified Xmobar.Run.Loop as Loop
 import Xmobar.Run.Parsers ( Segment
                           , Widget(..)
                           , parseString
@@ -36,8 +36,8 @@ import Xmobar.Run.Parsers ( Segment
                           , colorComponents)
 
 -- | Starts the main event loop and threads
-textLoop :: Config -> IO ()
-textLoop conf = loop conf (startTextLoop' conf)
+loop :: Config -> IO ()
+loop conf = Loop.loop conf (startTextLoop' conf)
 
 startTextLoop' :: Config
                -> TMVar SignalType
@@ -47,7 +47,7 @@ startTextLoop' :: Config
 startTextLoop' cfg sig pauser vs = do
     hSetBuffering stdin LineBuffering
     hSetBuffering stdout LineBuffering
-    tv <- initLoop sig pauser vs
+    tv <- Loop.initLoop sig pauser vs
     eventLoop cfg tv sig
 
 -- | Continuously wait for a signal from a thread or a interrupt handler
