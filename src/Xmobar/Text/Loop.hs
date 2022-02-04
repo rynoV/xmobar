@@ -17,9 +17,7 @@
 module Xmobar.Text.Loop (loop) where
 
 import Prelude hiding (lookup)
-import Text.Printf
 import System.IO
-import Data.List (intercalate)
 
 import Control.Monad.Reader
 
@@ -27,13 +25,14 @@ import Control.Concurrent.Async (Async)
 import Control.Concurrent.STM
 
 import Xmobar.System.Signal
-import Xmobar.Config.Types (Config(textOutputFormat), TextOutputFormat(..))
+
+import Xmobar.Config.Types (Config)
+
 import qualified Xmobar.Run.Loop as Loop
-import Xmobar.Run.Parsers ( Segment
-                          , Widget(..)
-                          , parseString
-                          , tColorsString
-                          , colorComponents)
+
+import Xmobar.Run.Parsers (parseString)
+
+import Xmobar.Text.Output (formatSegment)
 
 -- | Starts the main event loop and threads
 loop :: Config -> IO ()
@@ -64,64 +63,8 @@ updateString conf v = do
   let l:c:r:_ = s ++ repeat ""
   liftIO $ concat `fmap` mapM (parseStringAsText conf) [l, c, r]
 
-asInt :: String -> String
-asInt x = case (reads $ "0x" ++ x)  :: [(Integer, String)] of
-  [(v, "") ] -> show v
-  _ -> ""
-
-namedColor :: String -> String
-namedColor c =
-  case c of
-    "black" -> "0"; "red" -> "1"; "green" -> "2"; "yellow" -> "3"; "blue" -> "4";
-    "magenta" -> "5"; "cyan" -> "6"; "white" -> "7"; _ -> ""
-
-ansiCode :: String -> String
-ansiCode ('#':r:g:[b]) = ansiCode ['#', '0', r, '0', g, '0', b]
-ansiCode ('#':r0:r1:g0:g1:b0:[b1]) =
-  "2;" ++ intercalate ";" (map asInt [[r0,r1], [g0,g1], [b0,b1]])
-ansiCode ('#':n) = ansiCode n
-ansiCode c = "5;" ++ if null i then namedColor c else i where i = asInt c
-
-withAnsiColor :: (String, String) -> String -> String
-withAnsiColor (fg, bg) s = wrap "38;" fg (wrap "48;" bg s)
-  where wrap cd cl w =
-          if null cl
-          then w
-          else "\x1b[" ++ cd ++ ansiCode cl ++ "m" ++ w ++ "\x1b[0m"
-
-replaceAll :: (Eq a) => a -> [a] -> [a] -> [a]
-replaceAll c s = concatMap (\x -> if x == c then s else [x])
-
-xmlEscape :: String -> String
-xmlEscape s = replaceAll '"' "&quot;" $
-              replaceAll '\'' "&apos;" $
-              replaceAll '<' "&lt;" $
-              replaceAll '>' "&gt;" $
-              replaceAll '&' "&amp;" s
-
-withPangoColor :: (String, String) -> String -> String
-withPangoColor (fg, bg) s =
-  printf fmt (xmlEscape fg) (xmlEscape bg) (xmlEscape s)
-  where fmt = "<span foreground=\"%s\" background=\"%s\">%s</span>"
-
-withColor :: TextOutputFormat -> (String, String) -> String -> String
-withColor format color = case format of
-                           Plain -> id
-                           Ansi -> withAnsiColor color
-                           Pango -> withPangoColor color
-
-
-asText :: Config -> Segment -> String
-asText conf (Text s, info, _, _) =
-  withColor (textOutputFormat conf) components s
-  where components = colorComponents conf color
-        color = tColorsString info
-asText colors (Hspace n, i, x, y) =
-  asText colors (Text $ replicate (fromIntegral n) ' ', i, x, y)
-asText _ _ = ""
-
 parseStringAsText :: Config -> String -> IO String
 parseStringAsText c s = do
   segments <- parseString c s
-  let txts = map (asText c) segments
+  let txts = map (formatSegment c) segments
   return (concat txts)
