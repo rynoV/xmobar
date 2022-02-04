@@ -28,7 +28,7 @@ import Control.Arrow ((&&&))
 import Control.Monad.Reader
 import Control.Concurrent
 import Control.Concurrent.STM
-import Control.Exception (handle, SomeException(..))
+
 import Data.Bits
 import Data.Map hiding (foldr, map, filter)
 import qualified Data.Map as Map
@@ -56,7 +56,7 @@ import Xmobar.X11.Text
 import Xmobar.X11.Draw
 import Xmobar.X11.Bitmap as Bitmap
 import Xmobar.X11.Types
-import Xmobar.System.Utils (safeIndex)
+import Xmobar.System.Utils (safeIndex, forkThread)
 
 import Xmobar.Run.Loop (loop)
 
@@ -81,23 +81,16 @@ x11Loop conf = do
   let ic = Map.empty
       to = textOffset conf
       ts = textOffsets conf ++ replicate (length fl) (-1)
+#ifdef XFT
+  xftInitFtLibrary
+#endif
   (r,w) <- createWin d fs conf
   loop conf (startLoop (XConf d r w (fs :| fl) (to :| ts) ic conf))
 
 startLoop :: XConf -> TMVar SignalType -> TVar [String] -> IO ()
 startLoop xcfg@(XConf _ _ w _ _ _ _) sig tv = do
-#ifdef XFT
-    xftInitFtLibrary
-#endif
-#ifdef THREADED_RUNTIME
-    _ <- forkOS (handle (handler "X event handler") (handleXEvent w sig))
-#else
-    _ <- forkIO (handle (handler "X event handler") (handleXEvent w sig))
-#endif
+    forkThread "X event handler" (handleXEvent w sig)
     eventLoop xcfg [] sig tv
-  where
-    handler thing (SomeException e) =
-      void $ putStrLn ("Thread " ++ thing ++ " failed: " ++ show e)
 
 -- | Translates X11 events received by w to signals handled by eventLoop
 handleXEvent :: Window -> TMVar SignalType -> IO ()
