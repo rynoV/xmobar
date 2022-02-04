@@ -98,7 +98,7 @@ data Border = NoBorder
             | FullBM Int
               deriving ( Read, Show, Eq )
 
-data TextOutputFormat = Plain | Ansi | Pango deriving ( Read, Show, Eq )
+data TextOutputFormat = Plain | Ansi | Pango | Swaybar deriving (Read, Show, Eq)
 
 newtype SignalChan = SignalChan { unSignalChan :: Maybe (STM.TMVar SignalType) }
 

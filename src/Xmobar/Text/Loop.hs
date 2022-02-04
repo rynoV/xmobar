@@ -19,21 +19,19 @@ module Xmobar.Text.Loop (textLoop) where
 import Prelude hiding (lookup)
 import System.IO
 
-import Control.Monad.Reader
-
 import Control.Concurrent.STM
 
 import Xmobar.System.Signal
 import Xmobar.Config.Types (Config)
 import Xmobar.Run.Loop (loop)
-import Xmobar.Run.Parsers (parseString)
-import Xmobar.Text.Output (formatSegment)
+import Xmobar.Text.Output (initLoop, format)
 
 -- | Starts the main event loop and threads
 textLoop :: Config -> IO ()
 textLoop conf = do
   hSetBuffering stdin LineBuffering
   hSetBuffering stdout LineBuffering
+  initLoop conf
   loop conf (eventLoop conf)
 
 -- | Continuously wait for a signal from a thread or a interrupt handler
@@ -47,11 +45,4 @@ eventLoop cfg signal tv = do
 updateString :: Config -> TVar [String] -> IO String
 updateString conf v = do
   s <- readTVarIO v
-  let l:c:r:_ = s ++ repeat ""
-  liftIO $ concat `fmap` mapM (parseStringAsText conf) [l, c, r]
-
-parseStringAsText :: Config -> String -> IO String
-parseStringAsText c s = do
-  segments <- parseString c s
-  let txts = map (formatSegment c) segments
-  return (concat txts)
+  format conf (concat s)
