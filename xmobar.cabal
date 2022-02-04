@@ -115,7 +115,7 @@ library
                    Xmobar.Run.Exec,
                    Xmobar.Run.Runnable
                    Xmobar.Run.Actions,
-                   Xmobar.App.CommandThreads,
+                   Xmobar.Run.Loop,
                    Xmobar.App.X11EventLoop,
                    Xmobar.App.TextEventLoop,
                    Xmobar.App.Config,

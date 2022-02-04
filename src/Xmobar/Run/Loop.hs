@@ -2,7 +2,7 @@
 
 ------------------------------------------------------------------------------
 -- |
--- Module: Xmobar.App.CommandThreads
+-- Module: Xmobar.Run.Loop
 -- Copyright: (c) 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
@@ -12,14 +12,11 @@
 -- Created: Fri Jan 28, 2022 03:20
 --
 --
--- Running a thread for each defined Command
+-- Running a thread for each defined Command in a loop
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.App.CommandThreads ( initLoop
-                                 , loop
-                                 , newRefreshLock
-                                 , refreshLock) where
+module Xmobar.Run.Loop (initLoop, loop) where
 
 import Control.Concurrent (forkIO)
 import Control.Exception (bracket_, bracket, handle, SomeException(..))

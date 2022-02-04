@@ -28,8 +28,8 @@ import Control.Concurrent.STM
 
 import Xmobar.System.Signal
 import Xmobar.Config.Types (Config(textOutputFormat), TextOutputFormat(..))
+import Xmobar.Run.Loop (initLoop, loop)
 import Xmobar.X11.Parsers (Segment, Widget(..), parseString, tColorsString, colorComponents)
-import Xmobar.App.CommandThreads (initLoop, loop)
 
 -- | Starts the main event loop and threads
 textLoop :: Config -> IO ()

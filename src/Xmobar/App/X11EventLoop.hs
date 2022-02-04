@@ -59,7 +59,7 @@ import Xmobar.X11.Bitmap as Bitmap
 import Xmobar.X11.Types
 import Xmobar.System.Utils (safeIndex)
 
-import Xmobar.App.CommandThreads (initLoop, loop)
+import Xmobar.Run.Loop (initLoop, loop)
 
 #ifndef THREADED_RUNTIME
 import Xmobar.X11.Events(nextEvent')

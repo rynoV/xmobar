@@ -24,15 +24,15 @@ module Xmobar.X11.Parsers ( parseString
                           , TextRenderInfo(..)
                           , Widget(..)) where
 
-import Xmobar.Config.Types
-import Xmobar.Run.Actions
-
 import Control.Monad (guard, mzero)
 import Data.Maybe (fromMaybe)
 import Data.Int (Int32)
 import Text.ParserCombinators.Parsec
 import Text.Read (readMaybe)
 import Foreign.C.Types (CInt)
+
+import Xmobar.Config.Types
+import Xmobar.Run.Actions
 
 data Widget = Icon String | Text String | Hspace Int32 deriving Show
 
