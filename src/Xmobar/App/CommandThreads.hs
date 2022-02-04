@@ -34,7 +34,7 @@ import Xmobar.Config.Types
 import Xmobar.Run.Runnable (Runnable)
 import Xmobar.Run.Exec (start, trigger, alias)
 import Xmobar.Run.Template
-import Xmobar.App.Timer (withTimer)
+import Xmobar.Run.Timer (withTimer)
 
 #ifdef DBUS
 import Xmobar.System.DBus

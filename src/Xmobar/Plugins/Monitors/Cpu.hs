@@ -4,7 +4,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Plugins.Monitors.Cpu
--- Copyright   :  (c) 2011, 2017 Jose Antonio Ortega Ruiz
+-- Copyright   :  (c) 2011, 2017, 2022 Jose Antonio Ortega Ruiz
 --                (c) 2007-2010 Andrea Rossato
 -- License     :  BSD-style (see LICENSE)
 --
@@ -30,7 +30,7 @@ module Xmobar.Plugins.Monitors.Cpu
 import Xmobar.Plugins.Monitors.Common
 import Data.IORef (newIORef)
 import System.Console.GetOpt
-import Xmobar.App.Timer (doEveryTenthSeconds)
+import Xmobar.Run.Timer (doEveryTenthSeconds)
 import Control.Monad (void)
 import Xmobar.Plugins.Monitors.Cpu.Common (CpuData(..))
 

@@ -22,7 +22,7 @@ module Xmobar.Run.Exec (Exec (..), tenthSeconds, doEveryTenthSeconds) where
 import Prelude
 import Data.Char
 
-import Xmobar.App.Timer (doEveryTenthSeconds, tenthSeconds)
+import Xmobar.Run.Timer (doEveryTenthSeconds, tenthSeconds)
 import Xmobar.System.Signal
 
 class Show e => Exec e where

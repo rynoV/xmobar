@@ -110,6 +110,7 @@ library
                    Xmobar.Config.Types,
                    Xmobar.Config.Parse,
                    Xmobar.Run.Types,
+                   Xmobar.Run.Timer,
                    Xmobar.Run.Template,
                    Xmobar.Run.Exec,
                    Xmobar.Run.Runnable
@@ -121,7 +122,6 @@ library
                    Xmobar.App.Main,
                    Xmobar.App.Opts,
                    Xmobar.App.Compile,
-                   Xmobar.App.Timer,
                    Xmobar.System.Utils,
                    Xmobar.System.StatFS,
                    Xmobar.System.Environment,
@@ -383,7 +383,7 @@ test-suite XmobarTest
                  Xmobar.Plugins.Monitors.CpuSpec
                  Xmobar.Plugins.Monitors.Common.Run
                  Xmobar.Run.Exec
-                 Xmobar.App.Timer
+                 Xmobar.Run.Timer
                  Xmobar.System.Signal
 
   if flag(with_alsa) || flag(all_extensions)

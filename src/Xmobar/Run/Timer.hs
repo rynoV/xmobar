@@ -1,8 +1,8 @@
 {-# LANGUAGE LambdaCase #-}
 ------------------------------------------------------------------------------
 -- |
--- Module: Xmobar.App.Timer
--- Copyright: (c) 2019, 2020 Tomáš Janoušek
+-- Module: Xmobar.Run.Timer
+-- Copyright: (c) 2019, 2020, 2022 Tomáš Janoušek
 -- License: BSD3-style (see LICENSE)
 --
 -- Maintainer: Tomáš Janoušek <tomi@nomi.cz>
@@ -12,7 +12,7 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.App.Timer
+module Xmobar.Run.Timer
     ( doEveryTenthSeconds
     , tenthSeconds
     , withTimer
