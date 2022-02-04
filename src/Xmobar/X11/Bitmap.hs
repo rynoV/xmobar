@@ -24,8 +24,8 @@ import System.Directory (doesFileExist)
 import System.FilePath ((</>))
 import System.Mem.Weak ( addFinalizer )
 import Xmobar.Run.Actions (Action)
+import Xmobar.Run.Parsers (TextRenderInfo(..), Widget(..))
 import Xmobar.X11.ColorCache
-import Xmobar.X11.Parsers (TextRenderInfo(..), Widget(..))
 
 #ifdef XPM
 import Xmobar.X11.XPMFile(readXPMFile)

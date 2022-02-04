@@ -33,12 +33,12 @@ import Graphics.X11.Xlib.Extras
 
 import Xmobar.Config.Types
 import Xmobar.Run.Actions (Action(..))
+import Xmobar.Run.Parsers hiding (parseString)
 import qualified Xmobar.X11.Bitmap as B
 import Xmobar.X11.Types
 import Xmobar.X11.Text
 import Xmobar.X11.ColorCache
 import Xmobar.X11.Window (drawBorder)
-import Xmobar.X11.Parsers hiding (parseString)
 import Xmobar.System.Utils (safeIndex)
 
 #ifdef XFT

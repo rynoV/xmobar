@@ -51,7 +51,7 @@ import Xmobar.Config.Types ( persistent
                            , XPosition(..))
 
 import Xmobar.Run.Actions
-import Xmobar.X11.Parsers
+import Xmobar.Run.Parsers
 import Xmobar.X11.Window
 import Xmobar.X11.Text
 import Xmobar.X11.Draw

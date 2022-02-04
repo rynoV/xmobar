@@ -2,7 +2,7 @@
 
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Xmobar.X11.Parsers
+-- Module      :  Xmobar.Run.Parsers
 -- Copyright   :  (c) Andrea Rossato
 -- License     :  BSD-style (see LICENSE)
 --
@@ -14,7 +14,7 @@
 --
 -----------------------------------------------------------------------------
 
-module Xmobar.X11.Parsers ( parseString
+module Xmobar.Run.Parsers ( parseString
                           , colorComponents
                           , Segment
                           , Box(..)
