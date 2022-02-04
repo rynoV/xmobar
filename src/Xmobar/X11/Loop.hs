@@ -16,7 +16,7 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.App.X11EventLoop (x11Loop) where
+module Xmobar.X11.Loop (loop) where
 
 import Prelude hiding (lookup)
 import Graphics.X11.Xlib hiding (textExtents, textWidth, Segment)
@@ -59,7 +59,7 @@ import Xmobar.X11.Bitmap as Bitmap
 import Xmobar.X11.Types
 import Xmobar.System.Utils (safeIndex)
 
-import Xmobar.Run.Loop (initLoop, loop)
+import qualified Xmobar.Run.Loop as Loop
 
 #ifndef THREADED_RUNTIME
 import Xmobar.X11.Events(nextEvent')
@@ -73,8 +73,8 @@ runX :: XConf -> X () -> IO ()
 runX xc f = runReaderT f xc
 
 -- | Starts the main event loop and threads
-x11Loop :: Config -> IO ()
-x11Loop conf = do
+loop :: Config -> IO ()
+loop conf = do
   initThreads
   d <- openDisplay ""
   fs <- initFont d (font conf)
@@ -82,7 +82,7 @@ x11Loop conf = do
   let ic = Map.empty
       to = textOffset conf
       ts = textOffsets conf ++ replicate (length fl) (-1)
-  loop conf $ \sig lock vars -> do
+  Loop.loop conf $ \sig lock vars -> do
     (r,w) <- createWin d fs conf
     startLoop (XConf d r w (fs :| fl) (to :| ts) ic conf) sig lock vars
 
@@ -95,7 +95,7 @@ startLoop xcfg@(XConf _ _ w _ _ _ _) sig pauser vs = do
 #ifdef XFT
     xftInitFtLibrary
 #endif
-    tv <- initLoop sig pauser vs
+    tv <- Loop.initLoop sig pauser vs
 #ifdef THREADED_RUNTIME
     _ <- forkOS (handle (handler "eventer") (eventer sig))
 #else

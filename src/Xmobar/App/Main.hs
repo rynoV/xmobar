@@ -29,13 +29,13 @@ import Control.Monad (unless)
 import Xmobar.App.Config
 import Xmobar.Config.Types
 import Xmobar.Config.Parse
+import qualified Xmobar.X11.Loop as X11
 import Xmobar.App.Opts (recompileFlag, verboseFlag, getOpts, doOpts)
-import Xmobar.App.X11EventLoop (x11Loop)
 import Xmobar.App.TextEventLoop (textLoop)
 import Xmobar.App.Compile (recompile, trace)
 
 xmobar :: Config -> IO ()
-xmobar cfg = if textOutput cfg then textLoop cfg else x11Loop cfg
+xmobar cfg = if textOutput cfg then textLoop cfg else X11.loop cfg
 
 configFromArgs :: Config -> IO Config
 configFromArgs cfg = getArgs >>= getOpts >>= doOpts cfg . fst
