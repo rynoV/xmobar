@@ -16,7 +16,7 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.X11.Loop (loop) where
+module Xmobar.X11.Loop (x11Loop) where
 
 import Prelude hiding (lookup)
 import Graphics.X11.Xlib hiding (textExtents, textWidth, Segment)
@@ -27,7 +27,6 @@ import Graphics.X11.Xrandr
 import Control.Arrow ((&&&))
 import Control.Monad.Reader
 import Control.Concurrent
-import Control.Concurrent.Async (Async)
 import Control.Concurrent.STM
 import Control.Exception (handle, SomeException(..))
 import Data.Bits
@@ -59,7 +58,7 @@ import Xmobar.X11.Bitmap as Bitmap
 import Xmobar.X11.Types
 import Xmobar.System.Utils (safeIndex)
 
-import qualified Xmobar.Run.Loop as Loop
+import Xmobar.Run.Loop (loop)
 
 #ifndef THREADED_RUNTIME
 import Xmobar.X11.Events(nextEvent')
@@ -73,8 +72,8 @@ runX :: XConf -> X () -> IO ()
 runX xc f = runReaderT f xc
 
 -- | Starts the main event loop and threads
-loop :: Config -> IO ()
-loop conf = do
+x11Loop :: Config -> IO ()
+x11Loop conf = do
   initThreads
   d <- openDisplay ""
   fs <- initFont d (font conf)
@@ -82,58 +81,54 @@ loop conf = do
   let ic = Map.empty
       to = textOffset conf
       ts = textOffsets conf ++ replicate (length fl) (-1)
-  Loop.loop conf $ \sig lock vars -> do
-    (r,w) <- createWin d fs conf
-    startLoop (XConf d r w (fs :| fl) (to :| ts) ic conf) sig lock vars
+  (r,w) <- createWin d fs conf
+  loop conf (startLoop (XConf d r w (fs :| fl) (to :| ts) ic conf))
 
-startLoop :: XConf
-          -> TMVar SignalType
-          -> TMVar ()
-          -> [[([Async ()], TVar String)]]
-          -> IO ()
-startLoop xcfg@(XConf _ _ w _ _ _ _) sig pauser vs = do
+startLoop :: XConf -> TMVar SignalType -> TVar [String] -> IO ()
+startLoop xcfg@(XConf _ _ w _ _ _ _) sig tv = do
 #ifdef XFT
     xftInitFtLibrary
 #endif
-    tv <- Loop.initLoop sig pauser vs
 #ifdef THREADED_RUNTIME
-    _ <- forkOS (handle (handler "eventer") (eventer sig))
+    _ <- forkOS (handle (handler "X event handler") (handleXEvent w sig))
 #else
-    _ <- forkIO (handle (handler "eventer") (eventer sig))
+    _ <- forkIO (handle (handler "X event handler") (handleXEvent w sig))
 #endif
-    eventLoop tv xcfg [] sig
+    eventLoop xcfg [] sig tv
   where
     handler thing (SomeException e) =
       void $ putStrLn ("Thread " ++ thing ++ " failed: " ++ show e)
-    -- Reacts on events from X
-    eventer signal =
-      allocaXEvent $ \e -> do
-        dpy <- openDisplay ""
-        xrrSelectInput dpy (defaultRootWindow dpy) rrScreenChangeNotifyMask
-        selectInput dpy w (exposureMask .|. structureNotifyMask .|. buttonPressMask)
 
-        forever $ do
+-- | Translates X11 events received by w to signals handled by eventLoop
+handleXEvent :: Window -> TMVar SignalType -> IO ()
+handleXEvent w signal =
+  allocaXEvent $ \e -> do
+    dpy <- openDisplay ""
+    xrrSelectInput dpy (defaultRootWindow dpy) rrScreenChangeNotifyMask
+    selectInput dpy w (exposureMask .|. structureNotifyMask .|. buttonPressMask)
+
+    forever $ do
 #ifdef THREADED_RUNTIME
-          nextEvent dpy e
+      nextEvent dpy e
 #else
-          nextEvent' dpy e
+      nextEvent' dpy e
 #endif
-          ev <- getEvent e
-          case ev of
-            ConfigureEvent {} -> atomically $ putTMVar signal Reposition
-            ExposeEvent {} -> atomically $ putTMVar signal Wakeup
-            RRScreenChangeNotifyEvent {} -> atomically $ putTMVar signal Reposition
-            ButtonEvent {} -> atomically $
-                   putTMVar signal (Action (ev_button ev) (fi $ ev_x ev))
-            _ -> return ()
+      ev <- getEvent e
+      case ev of
+        ConfigureEvent {} -> atomically $ putTMVar signal Reposition
+        ExposeEvent {} -> atomically $ putTMVar signal Wakeup
+        RRScreenChangeNotifyEvent {} -> atomically $ putTMVar signal Reposition
+        ButtonEvent {} -> atomically $
+               putTMVar signal (Action (ev_button ev) (fi $ ev_x ev))
+        _ -> return ()
 
--- | Continuously wait for a signal from a thread or a interrupt handler
-eventLoop :: TVar [String]
-             -> XConf
-             -> [([Action], Position, Position)]
-             -> TMVar SignalType
-             -> IO ()
-eventLoop tv xc@(XConf d r w fs vos is cfg) as signal = do
+-- | Continuously wait for a signal from a thread or an interrupt handler
+eventLoop :: XConf
+          -> [([Action], Position, Position)]
+          -> TMVar SignalType
+          -> TVar [String]
+          -> IO ()
+eventLoop xc@(XConf d r w fs vos is cfg) as signal tv = do
       typ <- atomically $ takeTMVar signal
       case typ of
          Wakeup -> do
@@ -142,7 +137,7 @@ eventLoop tv xc@(XConf d r w fs vos is cfg) as signal = do
                      \c -> return xc { iconS = c }
             as' <- updateActions xc r str
             runX xc' $ drawInWin r str
-            eventLoop tv xc' as' signal
+            eventLoop xc' as' signal tv
 
          Reposition ->
             reposWindow cfg
@@ -156,38 +151,38 @@ eventLoop tv xc@(XConf d r w fs vos is cfg) as signal = do
          Toggle t -> toggle t
 
          TogglePersistent -> eventLoop
-            tv xc { config = cfg { persistent = not $ persistent cfg } } as signal
+            xc { config = cfg { persistent = not $ persistent cfg } } as signal tv
 
          Action but x -> action but x
 
     where
         isPersistent = not $ persistent cfg
-
+        loopOn = eventLoop xc as signal tv
         hide t
             | t == 0 =
-                when isPersistent (hideWindow d w) >> eventLoop tv xc as signal
+                when isPersistent (hideWindow d w) >> loopOn
             | otherwise = do
                 void $ forkIO
                      $ threadDelay t >> atomically (putTMVar signal $ Hide 0)
-                eventLoop tv xc as signal
+                loopOn
 
         reveal t
             | t == 0 = do
                 when isPersistent (showWindow r cfg d w)
-                eventLoop tv xc as signal
+                loopOn
             | otherwise = do
                 void $ forkIO
                      $ threadDelay t >> atomically (putTMVar signal $ Reveal 0)
-                eventLoop tv xc as signal
+                loopOn
 
         toggle t = do
             ismapped <- isMapped d w
             atomically (putTMVar signal $ if ismapped then Hide t else Reveal t)
-            eventLoop tv xc as signal
+            loopOn
 
         reposWindow rcfg = do
           r' <- repositionWin d w (NE.head fs) rcfg
-          eventLoop tv (XConf d r' w fs vos is rcfg) as signal
+          eventLoop (XConf d r' w fs vos is rcfg) as signal tv
 
         updateConfigPosition ocfg =
           case position ocfg of
@@ -205,7 +200,7 @@ eventLoop tv xc@(XConf d r w fs vos is cfg) as signal = do
             filter (\(Spawn b _) -> button `elem` b) $
             concatMap (\(a,_,_) -> a) $
             filter (\(_, from, to) -> x >= from && x <= to) as
-          eventLoop tv xc as signal
+          loopOn
 
 updateString :: Config -> TVar [String] -> IO [[Segment]]
 updateString conf v = do

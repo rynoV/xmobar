@@ -16,7 +16,7 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.Run.Loop (initLoop, loop) where
+module Xmobar.Run.Loop (LoopFunction, loop) where
 
 import Control.Concurrent (forkIO)
 import Control.Exception (bracket_, bracket, handle, SomeException(..))
@@ -53,13 +53,10 @@ refreshLockT var action = do
     putTMVar var ()
     return r
 
-type StartFunction = TMVar SignalType
-                     -> TMVar ()
-                     -> [[([Async ()], TVar String)]]
-                     -> IO ()
+type LoopFunction = TMVar SignalType -> TVar [String] -> IO ()
 
-loop :: Config -> StartFunction -> IO ()
-loop conf starter = withDeferSignals $ do
+loop :: Config -> LoopFunction -> IO ()
+loop conf looper = withDeferSignals $ do
   cls <- mapM (parseTemplate (commands conf) (sepChar conf))
                 (splitTemplate (alignSep conf) (template conf))
   let confSig = unSignalChan (signal conf)
@@ -70,7 +67,8 @@ loop conf starter = withDeferSignals $ do
     bracket (mapM (mapM $ startCommand sig) cls)
             cleanupThreads
             $ \vars -> do
-      starter sig refLock vars
+      tv <- initLoop sig refLock vars
+      looper sig tv
 
 cleanupThreads :: [[([Async ()], a)]] -> IO ()
 cleanupThreads vars =

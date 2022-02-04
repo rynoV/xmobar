@@ -14,48 +14,35 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.Text.Loop (loop) where
+module Xmobar.Text.Loop (textLoop) where
 
 import Prelude hiding (lookup)
 import System.IO
 
 import Control.Monad.Reader
 
-import Control.Concurrent.Async (Async)
 import Control.Concurrent.STM
 
 import Xmobar.System.Signal
-
 import Xmobar.Config.Types (Config)
-
-import qualified Xmobar.Run.Loop as Loop
-
+import Xmobar.Run.Loop (loop)
 import Xmobar.Run.Parsers (parseString)
-
 import Xmobar.Text.Output (formatSegment)
 
 -- | Starts the main event loop and threads
-loop :: Config -> IO ()
-loop conf = Loop.loop conf (startTextLoop' conf)
-
-startTextLoop' :: Config
-               -> TMVar SignalType
-               -> TMVar ()
-               -> [[([Async ()], TVar String)]]
-               -> IO ()
-startTextLoop' cfg sig pauser vs = do
-    hSetBuffering stdin LineBuffering
-    hSetBuffering stdout LineBuffering
-    tv <- Loop.initLoop sig pauser vs
-    eventLoop cfg tv sig
+textLoop :: Config -> IO ()
+textLoop conf = do
+  hSetBuffering stdin LineBuffering
+  hSetBuffering stdout LineBuffering
+  loop conf (eventLoop conf)
 
 -- | Continuously wait for a signal from a thread or a interrupt handler
-eventLoop :: Config -> TVar [String] -> TMVar SignalType -> IO ()
-eventLoop cfg tv signal = do
+eventLoop :: Config -> TMVar SignalType -> TVar [String] -> IO ()
+eventLoop cfg signal tv = do
   typ <- atomically $ takeTMVar signal
   case typ of
-    Wakeup -> updateString cfg tv >>= putStrLn >> eventLoop cfg tv signal
-    _ -> eventLoop cfg tv signal
+    Wakeup -> updateString cfg tv >>= putStrLn >> eventLoop cfg signal tv
+    _ -> eventLoop cfg signal tv
 
 updateString :: Config -> TVar [String] -> IO String
 updateString conf v = do
