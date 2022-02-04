@@ -185,24 +185,25 @@ library
     ghc-options: -funbox-strict-fields -Wall -fno-warn-unused-do-bind
 
     build-depends:
-      base >= 4.11.0 && < 4.16,
-      containers,
-      regex-compat,
-      process,
-      old-locale,
-      bytestring >= 0.10.8.2,
-      directory,
-      unix,
-      time,
-      filepath,
-      transformers,
-      X11 >= 1.6.1,
-      mtl >= 2.1 && < 2.3,
-      parsec == 3.1.*,
-      parsec-numbers >= 0.1.0,
-      stm >= 2.3 && < 2.6,
-      extensible-exceptions == 0.1.*,
-      async
+                  X11 >= 1.6.1,
+                  aeson >= 2.0.3.0,
+                  async,
+                  base >= 4.11.0 && < 4.16,
+                  bytestring >= 0.10.8.2,
+                  containers,
+                  directory,
+                  extensible-exceptions == 0.1.*,
+                  filepath,
+                  mtl >= 2.1 && < 2.3,
+                  old-locale,
+                  parsec == 3.1.*,
+                  parsec-numbers >= 0.1.0,
+                  process,
+                  regex-compat,
+                  stm >= 2.3 && < 2.6,
+                  time,
+                  transformers,
+                  unix
 
     if impl(ghc < 8.0.2)
        -- Disable building with GHC before 8.0.2.
