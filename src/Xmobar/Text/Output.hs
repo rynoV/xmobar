@@ -24,11 +24,11 @@ import Xmobar.Run.Parsers ( Segment
 
 import Xmobar.Text.Ansi (withAnsiColor)
 import Xmobar.Text.Pango (withPangoColor)
-import Xmobar.Text.Swaybar (formatSwaybar, preamble)
+import Xmobar.Text.Swaybar (formatSwaybar, prepare)
 
 initLoop :: Config -> IO ()
 initLoop conf = case textOutputFormat conf of
-  Swaybar -> putStrLn preamble
+  Swaybar -> prepare
   _ -> return ()
 
 withColor :: TextOutputFormat -> (String, String) -> String -> String

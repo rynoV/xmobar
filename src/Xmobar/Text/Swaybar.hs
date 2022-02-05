@@ -16,9 +16,10 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.Text.Swaybar (preamble, formatSwaybar) where
+module Xmobar.Text.Swaybar (prepare, formatSwaybar) where
 
 import Data.Aeson
+
 import Data.ByteString.Lazy.UTF8 (toString)
 
 import GHC.Generics
@@ -28,8 +29,9 @@ import Xmobar.Config.Types (Config)
 import Xmobar.Run.Parsers ( Segment
                           , Widget(..)
                           , tColorsString
-                          , colorComponents
-                          )
+                          , colorComponents)
+
+import Xmobar.Text.SwaybarClicks (startHandler)
 
 data Preamble =
   Preamble {version :: !Int, click_events :: Bool} deriving (Eq,Show,Generic)
@@ -71,3 +73,6 @@ formatSwaybar' _ _ = defaultBlock
 formatSwaybar :: Config -> [Segment] -> String
 formatSwaybar conf segs = asString elems ++ ","
   where elems = filter (not . null . full_text) (map (formatSwaybar' conf) segs)
+
+prepare :: IO ()
+prepare = startHandler >> putStrLn preamble

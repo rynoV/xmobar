@@ -131,6 +131,7 @@ library
                    Xmobar.Text.Loop,
                    Xmobar.Text.Pango,
                    Xmobar.Text.Swaybar,
+                   Xmobar.Text.SwaybarClicks,
                    Xmobar.Text.Output,
                    Xmobar.X11.Events,
                    Xmobar.X11.Loop,

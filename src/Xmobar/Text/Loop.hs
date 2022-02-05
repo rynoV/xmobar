@@ -17,7 +17,7 @@
 module Xmobar.Text.Loop (textLoop) where
 
 import Prelude hiding (lookup)
-import System.IO
+import System.IO (hSetBuffering, stdin, stdout, BufferMode(LineBuffering))
 
 import Control.Concurrent.STM
 
