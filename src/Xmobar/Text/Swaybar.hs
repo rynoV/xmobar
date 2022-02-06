@@ -81,7 +81,7 @@ instance ToJSON Block where
 instance ToJSON Preamble
 
 withBox :: Box -> Block -> Block
-withBox (Box b _ n c _) bl =
+withBox (Box b _ n c _) block =
   (case b of
      BBFull -> bl { border_right = w, border_left = w
                   , border_bottom = w, border_top = w  }
@@ -94,6 +94,10 @@ withBox (Box b _ n c _) bl =
   ) { border = bc }
   where w = Just (fromIntegral n)
         bc = if null c then Nothing else Just c
+        j0 = Just 0
+        bl = block { border_right = j0, border_left = j0
+                   , border_bottom = j0, border_top = j0  }
+
 
 formatSwaybar' :: Config -> Segment -> Block
 formatSwaybar' conf (Text txt, info, _, as) =
