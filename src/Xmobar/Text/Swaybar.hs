@@ -28,6 +28,9 @@ import Xmobar.Config.Types (Config)
 
 import Xmobar.Run.Parsers ( Segment
                           , Widget(..)
+                          , Box(..)
+                          , BoxBorder(..)
+                          , tBoxes
                           , tColorsString
                           , colorComponents)
 
@@ -43,36 +46,83 @@ preamble :: String
 preamble = (asString $ Preamble { version = 1, click_events = True }) ++ "\x0A["
 
 data Block =
-  Block { full_text :: !String
-        , color :: !String
-        , background :: !String
-        , separator :: !Bool
-        , separator_block_width :: !Int
-        , name :: !String
+  Block { full_text :: String
+        , name :: String
+        , color :: Maybe String
+        , background :: Maybe String
+        , separator :: Bool
+        , separator_block_width :: Int
+        , border :: Maybe String
+        , border_top :: Maybe Int
+        , border_bottom :: Maybe Int
+        , border_left :: Maybe Int
+        , border_right :: Maybe Int
         } deriving (Eq,Show,Generic)
+
 
 defaultBlock :: Block
 defaultBlock = Block { full_text = ""
                      , name = ""
-                     , color = ""
-                     , background = ""
+                     , color = Nothing
+                     , background = Nothing
                      , separator = False
-                     , separator_block_width = 0}
+                     , separator_block_width = 0
+                     , border = Nothing
+                     , border_top = Nothing
+                     , border_bottom = Nothing
+                     , border_left = Nothing
+                     , border_right = Nothing
+                     }
+
+instance ToJSON Block where
+  toJSON = genericToJSON defaultOptions
+    { omitNothingFields = True }
 
 instance ToJSON Preamble
-instance ToJSON Block
+
+withBox :: Box -> Block -> Block
+withBox (Box b _ n c _) bl =
+  (case b of
+     BBFull -> bl { border_right = w, border_left = w
+                  , border_bottom = w, border_top = w  }
+     BBTop -> bl { border_top = w }
+     BBBottom -> bl { border_bottom = w }
+     BBVBoth -> bl { border_bottom = w, border_top = w }
+     BBLeft -> bl { border_left = w }
+     BBRight -> bl { border_right = w }
+     BBHBoth -> bl { border_right = w, border_left = w }
+  ) { border = bc }
+  where w = Just (fromIntegral n)
+        bc = if null c then Nothing else Just c
 
 formatSwaybar' :: Config -> Segment -> Block
 formatSwaybar' conf (Text txt, info, _, as) =
-  defaultBlock {full_text = txt , color = fg , background = bg , name = show as}
+  foldr withBox block (tBoxes info)
   where (fg, bg) = colorComponents conf (tColorsString info)
+        block = defaultBlock { full_text = txt
+                             , color = Just fg
+                             , background = Just bg
+                             , name = show as
+                             }
 formatSwaybar' conf (Hspace n, info, i, a) =
   formatSwaybar' conf (Text (replicate (fromIntegral n) ' '), info, i, a)
 formatSwaybar' _ _ = defaultBlock
 
+collectBlock :: Block -> [Block] -> [Block]
+collectBlock b [] = [b]
+collectBlock b (h:bs) =
+  if b {full_text = ""} == h {full_text = ""} then
+    h {full_text = full_text b ++ full_text h} : bs
+  else b:h:bs
+
+collectSegment :: Config -> Segment -> [Block] -> [Block]
+collectSegment config segment blocks =
+  if null $ full_text b then blocks else collectBlock b blocks
+  where b = formatSwaybar' config segment
+
 formatSwaybar :: Config -> [Segment] -> String
-formatSwaybar conf segs = asString elems ++ ","
-  where elems = filter (not . null . full_text) (map (formatSwaybar' conf) segs)
+formatSwaybar conf segs = asString blocks ++ ","
+  where blocks = foldr (collectSegment conf) [] segs
 
 prepare :: IO ()
 prepare = startHandler >> putStrLn preamble
