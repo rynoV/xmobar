@@ -17,6 +17,7 @@
 module Xmobar.Run.Parsers ( parseString
                           , colorComponents
                           , Segment
+                          , FontIndex
                           , Box(..)
                           , BoxBorder(..)
                           , BoxOffset(..)

@@ -24,17 +24,19 @@ import Data.ByteString.Lazy.UTF8 (toString)
 
 import GHC.Generics
 
-import Xmobar.Config.Types (Config)
+import Xmobar.Config.Types (Config (additionalFonts))
 
 import Xmobar.Run.Parsers ( Segment
                           , Widget(..)
                           , Box(..)
                           , BoxBorder(..)
+                          , FontIndex
                           , tBoxes
                           , tColorsString
                           , colorComponents)
 
 import Xmobar.Text.SwaybarClicks (startHandler)
+import Xmobar.Text.Pango (withPangoFont)
 
 data Preamble =
   Preamble {version :: !Int, click_events :: Bool} deriving (Eq,Show,Generic)
@@ -46,17 +48,18 @@ preamble :: String
 preamble = (asString $ Preamble { version = 1, click_events = True }) ++ "\x0A["
 
 data Block =
-  Block { full_text :: String
-        , name :: String
+  Block { full_text :: !String
+        , name :: !String
         , color :: Maybe String
         , background :: Maybe String
-        , separator :: Bool
-        , separator_block_width :: Int
+        , separator :: !Bool
+        , separator_block_width :: !Int
         , border :: Maybe String
         , border_top :: Maybe Int
         , border_bottom :: Maybe Int
         , border_left :: Maybe Int
         , border_right :: Maybe Int
+        , markup :: Maybe String
         } deriving (Eq,Show,Generic)
 
 
@@ -72,6 +75,7 @@ defaultBlock = Block { full_text = ""
                      , border_bottom = Nothing
                      , border_left = Nothing
                      , border_right = Nothing
+                     , markup = Nothing
                      }
 
 instance ToJSON Block where
@@ -98,10 +102,21 @@ withBox (Box b _ n c _) block =
         bl = block { border_right = j0, border_left = j0
                    , border_bottom = j0, border_top = j0  }
 
+withFont :: Config -> FontIndex -> Block -> Block
+withFont conf idx block =
+  if idx < 1 || idx > length fonts then block
+  else block { markup = Just $ fonts !! (idx - 1) }
+  where fonts = additionalFonts conf
+
+withPango :: Block -> Block
+withPango block = case markup block of
+  Nothing -> block
+  Just fnt -> block { full_text = txt fnt, markup = Just "pango"}
+  where txt fn = withPangoFont fn (full_text block)
 
 formatSwaybar' :: Config -> Segment -> Block
-formatSwaybar' conf (Text txt, info, _, as) =
-  foldr withBox block (tBoxes info)
+formatSwaybar' conf (Text txt, info, idx, as) =
+  foldr withBox (withFont conf idx block) (tBoxes info)
   where (fg, bg) = colorComponents conf (tColorsString info)
         block = defaultBlock { full_text = txt
                              , color = Just fg
@@ -125,7 +140,7 @@ collectSegment config segment blocks =
   where b = formatSwaybar' config segment
 
 formatSwaybar :: Config -> [Segment] -> String
-formatSwaybar conf segs = asString blocks ++ ","
+formatSwaybar conf segs = asString (map withPango blocks) ++ ","
   where blocks = foldr (collectSegment conf) [] segs
 
 prepare :: IO ()

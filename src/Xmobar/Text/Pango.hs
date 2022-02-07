@@ -15,9 +15,10 @@
 --
 ------------------------------------------------------------------------------
 
-module Xmobar.Text.Pango (withPangoColor) where
+module Xmobar.Text.Pango (withPangoColor, withPangoFont) where
 
 import Text.Printf (printf)
+import Data.List (isPrefixOf)
 
 replaceAll :: (Eq a) => a -> [a] -> [a] -> [a]
 replaceAll c s = concatMap (\x -> if x == c then s else [x])
@@ -33,3 +34,8 @@ withPangoColor :: (String, String) -> String -> String
 withPangoColor (fg, bg) s =
   printf fmt (xmlEscape fg) (xmlEscape bg) (xmlEscape s)
   where fmt = "<span foreground=\"%s\" background=\"%s\">%s</span>"
+
+withPangoFont :: String -> String -> String
+withPangoFont font txt = printf fmt pfn (xmlEscape txt)
+  where fmt = "<span font=\"%s\">%s</span>"
+        pfn = if "xft:" `isPrefixOf` font then drop 4 font else font
