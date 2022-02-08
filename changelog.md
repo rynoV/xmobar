@@ -3,7 +3,9 @@
 _New features_
 
   - New text mode (thanks to Pavel Kagulin, see issue #601), with
-    output formats compatible with color terminals and sway.
+    output formats compatible with color terminals and pango.
+  - New text mode with format following swaybar-protocol, supporting
+    colors, faces, boxes and actions.
 
 ## Version 0.41 (January, 2022)
 

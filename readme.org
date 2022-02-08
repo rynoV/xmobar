@@ -126,19 +126,31 @@
       xmobar -TPlain /path/to/config &
     #+end_src
 
-    Other options are ~Ansi~ and ~Pango~.
+    Other options are ~Ansi~, ~Pango~, and ~Swaybar~.
 
-*** Using xmobar in Wayland with swaybar
+*** Using xmobar in Wayland with swaybar or waybar
 
     In text mode, xmobar can be told to ouput its information using
-    pango markup for colors, and it that way you can use it with
-    swaybar.  Here's a minimal ~bar~ configuration for sway's
+    pango markup for colors and fonts, and it that way you can use it
+    with swaybar or waybar, if you don't have actions or boxes in your
+    template.  Here's a minimal ~bar~ configuration for sway's
     configuration file:
 
     #+begin_src conf
       bar {
         status_command xmobar -TPango
         pango_markup enabled
+      }
+    #+end_src
+
+    In case you want to use boxes around text or click actions in your
+    template, you can use instead the format ~Swaybar~, which supports
+    both.  This output format follows the JSON /swaybar-protocol/
+    defined by swaybar.  Configure it simply with:
+
+    #+begin_src conf
+      bar {
+        status_command xmobar -TSwaybar
       }
     #+end_src
 

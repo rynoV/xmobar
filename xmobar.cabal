@@ -1,5 +1,5 @@
 name:               xmobar
-version:            0.41
+version:            0.42
 homepage:           https://github.com/jaor/xmobar
 synopsis:           A Minimalistic Text Based Status Bar
 description: 	    Xmobar is a minimalistic text based status bar.
