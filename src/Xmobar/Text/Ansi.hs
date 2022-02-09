@@ -17,6 +17,7 @@
 module Xmobar.Text.Ansi (withAnsiColor) where
 
 import Data.List (intercalate)
+import Data.Char (toLower)
 
 asInt :: String -> String
 asInt x = case (reads $ "0x" ++ x)  :: [(Integer, String)] of
@@ -25,9 +26,13 @@ asInt x = case (reads $ "0x" ++ x)  :: [(Integer, String)] of
 
 namedColor :: String -> String
 namedColor c =
-  case c of
+  case (map toLower c) of
     "black" -> "0"; "red" -> "1"; "green" -> "2"; "yellow" -> "3"; "blue" -> "4";
-    "magenta" -> "5"; "cyan" -> "6"; "white" -> "7"; _ -> ""
+    "magenta" -> "5"; "cyan" -> "6"; "white" -> "7";
+    "brightblack" -> "8"; "brightred" -> "9"; "brightgreen" -> "10";
+    "brightyellow" -> "11"; "brightblue" -> "12";
+    "brightmagenta" -> "13"; "brightcyan" -> "14"; "brightwhite" -> "15";
+    _ -> ""
 
 ansiCode :: String -> String
 ansiCode ('#':r:g:[b]) = ansiCode ['#', '0', r, '0', g, '0', b]
