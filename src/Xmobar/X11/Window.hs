@@ -84,7 +84,7 @@ setPosition c p rs ht =
     TopW a i -> Rectangle (ax a i) ry (nw i) h
     TopSize a i ch -> Rectangle (ax a i) ry (nw i) (mh ch)
     Bottom -> Rectangle rx ny rw h
-    BottomH ch -> Rectangle rx ny rw (mh ch)
+    BottomH ch -> Rectangle rx (ny' ch) rw (mh ch)
     BottomW a i -> Rectangle (ax a i) ny (nw i) h
     BottomP l r -> Rectangle (rx + fi l) ny (rw - fi l - fi r) h
     BottomSize a i ch  -> Rectangle (ax a i) (ny' ch) (nw i) (mh ch)
