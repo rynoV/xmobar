@@ -89,12 +89,12 @@ x11Loop conf = do
 
 startLoop :: XConf -> TMVar SignalType -> TVar [String] -> IO ()
 startLoop xcfg@(XConf _ _ w _ _ _ _) sig tv = do
-    forkThread "X event handler" (handleXEvent w sig)
-    eventLoop xcfg [] sig tv
+    forkThread "X event handler" (x11EventLoop w sig)
+    signalLoop xcfg [] sig tv
 
--- | Translates X11 events received by w to signals handled by eventLoop
-handleXEvent :: Window -> TMVar SignalType -> IO ()
-handleXEvent w signal =
+-- | Translates X11 events received by w to signals handled by signalLoop
+x11EventLoop :: Window -> TMVar SignalType -> IO ()
+x11EventLoop w signal =
   allocaXEvent $ \e -> do
     dpy <- openDisplay ""
     xrrSelectInput dpy (defaultRootWindow dpy) rrScreenChangeNotifyMask
@@ -116,12 +116,12 @@ handleXEvent w signal =
         _ -> return ()
 
 -- | Continuously wait for a signal from a thread or an interrupt handler
-eventLoop :: XConf
+signalLoop :: XConf
           -> [([Action], Position, Position)]
           -> TMVar SignalType
           -> TVar [String]
           -> IO ()
-eventLoop xc@(XConf d r w fs vos is cfg) as signal tv = do
+signalLoop xc@(XConf d r w fs vos is cfg) as signal tv = do
       typ <- atomically $ takeTMVar signal
       case typ of
          Wakeup -> do
@@ -130,7 +130,7 @@ eventLoop xc@(XConf d r w fs vos is cfg) as signal tv = do
                      \c -> return xc { iconS = c }
             as' <- updateActions xc r str
             runX xc' $ drawInWin r str
-            eventLoop xc' as' signal tv
+            signalLoop xc' as' signal tv
 
          Reposition ->
             reposWindow cfg
@@ -143,14 +143,14 @@ eventLoop xc@(XConf d r w fs vos is cfg) as signal tv = do
          Reveal t -> reveal (t*100*1000)
          Toggle t -> toggle t
 
-         TogglePersistent -> eventLoop
+         TogglePersistent -> signalLoop
             xc { config = cfg { persistent = not $ persistent cfg } } as signal tv
 
          Action but x -> action but x
 
     where
         isPersistent = not $ persistent cfg
-        loopOn = eventLoop xc as signal tv
+        loopOn = signalLoop xc as signal tv
         hide t
             | t == 0 =
                 when isPersistent (hideWindow d w) >> loopOn
@@ -175,7 +175,7 @@ eventLoop xc@(XConf d r w fs vos is cfg) as signal tv = do
 
         reposWindow rcfg = do
           r' <- repositionWin d w (NE.head fs) rcfg
-          eventLoop (XConf d r' w fs vos is rcfg) as signal tv
+          signalLoop (XConf d r' w fs vos is rcfg) as signal tv
 
         updateConfigPosition ocfg =
           case position ocfg of
