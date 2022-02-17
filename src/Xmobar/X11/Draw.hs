@@ -70,6 +70,7 @@ drawInWin wr@(Rectangle _ _ wid ht) ~[left,center,right] = do
 #endif
   withColors d [bgColor c, borderColor c] $ \[bgcolor, bdcolor] -> do
     gc <- liftIO $ createGC  d w
+    liftIO $ setGraphicsExposures d gc False
 #if XFT
     when (alpha c == 255) $ do
 #else
@@ -88,8 +89,8 @@ drawInWin wr@(Rectangle _ _ wid ht) ~[left,center,right] = do
     -- free up everything (we do not want to leak memory!)
     liftIO $ freeGC d gc
     liftIO $ freePixmap d p
-    -- resync
-    liftIO $ sync d False
+    -- resync (discard events, we don't read/process events from this display conn)
+    liftIO $ sync d True
 
 verticalOffset :: (Integral b, Integral a, MonadIO m) =>
                   a -> Widget -> XFont -> Int -> Config -> m b
