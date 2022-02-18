@@ -7,6 +7,11 @@ _New features_
   - New text mode with format following swaybar-protocol, supporting
     colors, faces, boxes and actions.
 
+_Bug fixes_
+
+   - Fix for bottom placement (#608)
+   - Fix for memory leak during X drawing (#609)
+
 ## Version 0.41 (January, 2022)
 
 _New features_
