@@ -26,7 +26,7 @@ asInt x = case (reads $ "0x" ++ x)  :: [(Integer, String)] of
 
 namedColor :: String -> String
 namedColor c =
-  case (map toLower c) of
+  case map toLower c of
     "black" -> "0"; "red" -> "1"; "green" -> "2"; "yellow" -> "3"; "blue" -> "4";
     "magenta" -> "5"; "cyan" -> "6"; "white" -> "7";
     "brightblack" -> "8"; "brightred" -> "9"; "brightgreen" -> "10";
