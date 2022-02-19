@@ -30,6 +30,7 @@ import Codec.Binary.UTF8.String as UTF8
 #endif
 
 import Foreign.C (CChar)
+import Data.List (intercalate)
 import Xmobar.X11.Events (nextEvent')
 
 data XMonadLog = XMonadLog
@@ -56,11 +57,12 @@ instance Exec XMonadLog where
                 UnsafeXPropertyLog a -> a
                 NamedXPropertyLog a _ -> a
                 UnsafeNamedXPropertyLog a _ -> a
+            stripNL = intercalate " - " . lines
             sanitize = case x of
                 UnsafeXMonadLog -> id
                 UnsafeXPropertyLog _ -> id
                 UnsafeNamedXPropertyLog _ _ -> id
-                _ -> stripActions
+                _ -> stripActions . stripNL
 
         d <- openDisplay ""
         xlog <- internAtom d atom False
