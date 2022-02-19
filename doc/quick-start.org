@@ -1,3 +1,5 @@
+#+title: Quick start: using xmobar
+
 Xmobar can either be configured using the configuration language, or
 used as a Haskell library (similar to xmonad) and compiled with your
 specific configuration. For an example of the latter, you can have a

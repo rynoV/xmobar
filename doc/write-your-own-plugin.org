@@ -1,4 +1,4 @@
-* Writing Your Own Plugin
+#+title: Writing your own plugin
 
 Writing a plugin for xmobar is very simple!
 
@@ -59,16 +59,17 @@ the many =run*= functions in [[../src/Xmobar/Plugins/Monitors/Common/Run.hs][Xmo
 define =start=. The =Exec= instance should then live in
 [[../src/Xmobar/Plugins/Monitors.hs][Xmobar.Plugins.Monitors]].
 
-** Using a Plugin
+*** Using a Plugin
 
-To use your new plugin, you need to use a pure Haskell configuration for
-xmobar, and load your definitions there. You can see an example in
-[[../examples/xmobar.hs][examples/xmobar.hs]] showing you how to write a Haskell configuration that
-uses a new plugin, all in one file.
+    To use your new plugin, you need to use a pure Haskell
+    configuration for xmobar, and load your definitions there. You can
+    see an example in [[../examples/xmobar.hs][examples/xmobar.hs]] showing you how to write a
+    Haskell configuration that uses a new plugin, all in one file.
 
-When xmobar runs with the full path to that Haskell file as its argument
-(or if you put it in =~/.config/xmobar/xmobar.hs=), and with the xmobar
-library installed (e.g., with =cabal install --lib xmobar=), the Haskell
-code will be compiled as needed, and the new executable spawned for you.
+    When xmobar runs with the full path to that Haskell file as its
+    argument (or if you put it in =~/.config/xmobar/xmobar.hs=), and
+    with the xmobar library installed (e.g., with =cabal install --lib
+    xmobar=), the Haskell code will be compiled as needed, and the new
+    executable spawned for you.
 
-That's it!
+    That's it!
