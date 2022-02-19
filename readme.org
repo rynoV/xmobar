@@ -1,18 +1,17 @@
+#+title: xmobar, a minimalistic status bar
+
 [[http://hackage.haskell.org/package/xmobar][https://img.shields.io/hackage/v/xmobar.svg]]
 
-* About
+Xmobar is a minimalistic status bar. It was originally designed and
+implemented to work with [[http://xmonad.org][xmonad]], but it is actually usable with any
+window manager in X11 and also (via its text output mode) Wayland.
 
-  Xmobar is a minimalistic status bar. It was originally designed and
-  implemented by Andrea Rossato to work with [[http://xmonad.org][xmonad]], but it is
-  actually usable with any window manager in X11 and also (via its
-  text output mode) Wayland.
+Xmobar was inspired by the [[http://tuomov.iki.fi/software/][Ion3]] status bar, and supports similar
+features, like dynamic color management, icons, output templates, and
+extensibility through plugins.  It is also able to write to standard
+output, in a variety of formats.
 
-  Xmobar was inspired by the [[http://tuomov.iki.fi/software/][Ion3]] status bar, and supports similar
-  features, like dynamic color management, icons, output templates,
-  and extensibility through plugins.  It is also able to write to
-  standard output, in a variety of formats.
-
-  These are some xmobar [[file:doc/screenshots][screenshots]] using the author's configuration:
+These are some xmobar [[file:doc/screenshots][screenshots]] using the author's configuration:
 
 [[file:doc/screenshots/xmobar-top.png]]
 
@@ -20,8 +19,8 @@
 
 [[file:doc/screenshots/xmobar-exwm.png]]
 
-  Check [[./changelog.md][the change log]] for our release history.  We also have an IRC
-  channel, ~#xmobar~ at [[ircs://irc.libera.chat][Libera]].
+Check [[./changelog.md][the change log]] for our release history.  We also have an IRC
+channel, ~#xmobar~, at [[ircs://irc.libera.chat][Libera]].
 
 * Installation
 *** From your system's package manager
