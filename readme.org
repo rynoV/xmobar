@@ -156,11 +156,14 @@
 
 * Configuration and further Links
 
-  - If you want to jump straight into configuring xmobar, head over to the
+  - If you want to jump straight into running xmobar, head over to the
     [[./doc/quick-start.org][quick start guide]].
 
   - If you want to get a detailed overview of all available plugins and
     monitors, visit the [[./doc/plugins.org][plugins index]].
+
+  - [[./doc/window-managers.org][Interfacing with window managers]] describes plugins and extensions
+    for interacting with xmobar from your window manager.
 
   - If you want to know how to contribute to the xmobar project, check out
     [[contributing.org][contributing]].
