@@ -208,19 +208,6 @@ choice.
           logWorkspacesToQueue :: STM.TQueue String -> X ()
           logWorkspacesToQueue q =
             dynamicLogWithPP def { ppOutput = STM.atomically . STM.writeTQueue q }
-            where
-              -- Manage the PrettyPrinting configuration here.
-              ppLayout' :: String -> String
-              ppLayout' "Spacing Tall"        = xpm "layout-spacing-tall"
-              ppLayout' "Spacing Mirror Tall" = xpm "layout-spacing-mirror"
-              ppLayout' "Spacing Full"        = xpm "layout-full"
-              ppLayout' x = x
-
-              icon :: String -> String
-              icon path = "<icon=" ++ path ++ "/>"
-
-              xpm :: String -> String
-              xpm = icon . (++ ".xpm")
         #+end_src
 *** Example for using the DBus IPC interface with XMonad
 
