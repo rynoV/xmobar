@@ -200,8 +200,9 @@ choice.
         #+begin_src haskell
           main :: IO ()
           main = do
+            initThreads
             q <- STM.newTQueueIO @String
-            bar <- forkIO $ xmobar myConf
+            bar <- forkOS $ xmobar myConf
               { commands = Run (QueueReader q id "XMonadLog") : commands myConf }
             xmonad $ def { logHook = logWorkspacesToQueue q }
 
