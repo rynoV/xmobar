@@ -210,6 +210,15 @@ choice.
           logWorkspacesToQueue q =
             dynamicLogWithPP def { ppOutput = STM.atomically . STM.writeTQueue q }
         #+end_src
+
+        Note that xmonad uses blocking Xlib calls in its event loop and isn't
+        normally compiled with
+        [[https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using-concurrent.html][the threaded RTS]]
+        so an xmobar thread running inside xmonad will suffer from delayed
+        updates. It is thus necessary to enable =-threaded= when compiling
+        xmonad configuration (=xmonad.hs=), e.g. by using a custom
+        =~/.xmonad/build= script.
+
 *** Example for using the DBus IPC interface with XMonad
 
     Bind the key which should {,un}map xmobar to a dummy value. This is
