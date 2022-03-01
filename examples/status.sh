@@ -51,4 +51,6 @@ function percentBar () {
     echo "$res</fc>"
 }
 
+[[ -p $STATUSPIPE ]] || mkfifo $STATUSPIPE
+
 echo "$( percentBar )" > "$STATUSPIPE"
