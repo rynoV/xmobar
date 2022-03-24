@@ -202,9 +202,9 @@ channel, ~#xmobar~, at [[ircs://irc.libera.chat][Libera]].
 
   Andrea wants to thank Robert Manea and Spencer Janssen for their
   help in understanding how X works. They gave him suggestions on how
-  to solve many problems with xmobar.  He also thanks to Claus Reinke
-  for making him understand existential types (or at least for letting
-  him think he grasps existential types...;-).
+  to solve many problems with xmobar.  He also thanks Claus Reinke for
+  making him understand existential types (or at least for letting him
+  think he grasps existential types...;-).
 
 * License
 
