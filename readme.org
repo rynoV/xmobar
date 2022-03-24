@@ -11,7 +11,8 @@ features, like dynamic color management, icons, output templates, and
 extensibility through plugins.  It is also able to write to standard
 output, in a variety of formats.
 
-These are some xmobar [[file:doc/screenshots][screenshots]] using the author's configuration:
+These are some xmobar [[file:doc/screenshots][screenshots]] using one of the authors'
+configuration:
 
 [[file:doc/screenshots/xmobar-top.png]]
 
@@ -199,22 +200,11 @@ channel, ~#xmobar~, at [[ircs://irc.libera.chat][Libera]].
   Yakimov, Edward Z. Yang, Leo Zhang, Norbert Zeh, and Michal
   Zielonka.
 
-*** Thanks
-
-  *Andrea Rossato*:
-
-  Thanks to Robert Manea and Spencer Janssen for their help in
-  understanding how X works. They gave me suggestions on how to solve many
-  problems with xmobar.
-
-  Thanks to Claus Reinke for make me understand existential types (or at
-  least for letting me think I grasp existential types...;-).
-
-  *jao*:
-
-  Thanks to Andrea for creating xmobar in the first place, and for giving
-  me the chance to contribute.
-
+  Andrea wants to thank Robert Manea and Spencer Janssen for their
+  help in understanding how X works. They gave him suggestions on how
+  to solve many problems with xmobar.  He also thanks to Claus Reinke
+  for making him understand existential types (or at least for letting
+  him think he grasps existential types...;-).
 
 * License
 
