@@ -170,6 +170,9 @@ channel, ~#xmobar~, at [[ircs://irc.libera.chat][Libera]].
 
   - If you want to write your own plugins, see [[./doc/write-your-own-plugin.org][Write your own plugin]].
 
+  - For elaborated examples of how to use xmobar as a Haskell library
+    to create your monitors, see [[https://codeberg.org/jao/xmobar-config][this repo at jao/xmobar-config]].
+
   - To understand the internal mysteries of xmobar you may try reading
     [[https://wiki.haskell.org/X_window_programming_in_Haskell][this tutorial]] on X Window Programming in Haskell.
 
