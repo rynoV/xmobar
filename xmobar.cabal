@@ -189,7 +189,7 @@ library
                   X11 >= 1.6.1,
                   aeson >= 1.4.7.1,
                   async,
-                  base >= 4.11.0 && < 4.16,
+                  base >= 4.11.0 && < 4.17,
                   bytestring >= 0.10.8.2,
                   containers,
                   directory,
