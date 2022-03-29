@@ -122,7 +122,7 @@ corePaths :: Maybe String -> IO [String]
 corePaths s = do ps <- case s of
                         Just pth -> return [pth]
                         _ -> hwmonPaths
-                 cps <- concat <$> traverse (flip getMatchingPathsInDir corePathMatcher) ps
+                 cps <- concat <$> traverse (`getMatchingPathsInDir` corePathMatcher) ps
                  ls <- filterM doesFileExist cps
                  cls <- filterM isLabelFromCore ls
                  return $ map labelToCore cls
