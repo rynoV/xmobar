@@ -16,9 +16,12 @@ module Xmobar.Plugins.Monitors.MultiCoreTemp (startMultiCoreTemp) where
 
 import Xmobar.Plugins.Monitors.Common
 import Control.Monad (filterM)
+import Data.Char (isDigit)
+import Data.List (isPrefixOf)
 import System.Console.GetOpt
 import System.Directory ( doesDirectoryExist
                         , doesFileExist
+                        , listDirectory
                         )
 
 -- | Declare Options.
@@ -75,13 +78,32 @@ cTConfig = mkMConfig cTTemplate cTOptions
                     , "avg" , "avgpc" , "avgbar" , "avgvbar" , "avgipat"
                     ] ++ map (("core" ++) . show) [0 :: Int ..]
 
+-- | Returns all paths in dir matching the predicate.
+getMatchingPathsInDir :: FilePath -> (String -> Bool) -> IO [FilePath]
+getMatchingPathsInDir dir f = do exists <- doesDirectoryExist dir
+                                 if exists
+                                    then do
+                                      files <- filter f <$> listDirectory dir
+                                      return $ fmap (\file -> dir ++ "/" ++ file) files
+                                    else return []
+
+-- | Given a prefix, suffix, and path string, return true if the path string
+-- format is prefix ++ numeric ++ suffix.
+numberedPathMatcher :: String -> String -> String -> Bool
+numberedPathMatcher prefix suffix path =
+    prefix `isPrefixOf` path
+    && not (null digits)
+    && afterDigits == suffix
+  where afterPrefix = drop (length prefix) path
+        digits = takeWhile isDigit afterPrefix
+        afterDigits = dropWhile isDigit afterPrefix
 
 -- | Returns the first coretemp.N path found.
 coretempPath :: IO (Maybe String)
-coretempPath = do xs <- filterM doesDirectoryExist ps
-                  return (if null xs then Nothing else Just $ head xs)
-  where ps = [ "/sys/bus/platform/devices/coretemp." ++ show (x :: Int) ++ "/"
-             | x <- [0..9] ]
+coretempPath = do ps <- getMatchingPathsInDir "/sys/bus/platform/devices" coretempMatcher
+                  xs <- filterM doesDirectoryExist ps
+                  return (if null xs then Nothing else Just $ head xs ++ "/")
+  where coretempMatcher = numberedPathMatcher "coretemp." ""
 
 -- | Returns the first hwmonN in coretemp path found or the ones in sys/class.
 hwmonPaths :: IO [String]
@@ -89,10 +111,10 @@ hwmonPaths = do p <- coretempPath
                 let (sc, path) = case p of
                                    Just s -> (False, s)
                                    Nothing -> (True, "/sys/class/")
-                let cps  = [ path ++ "hwmon/hwmon" ++ show (x :: Int) ++ "/"
-                           | x <- [0..9] ]
+                cps <- getMatchingPathsInDir (path ++ "hwmon") hwmonMatcher
                 ecps <- filterM doesDirectoryExist cps
                 return $ if sc || null ecps then ecps else [head ecps]
+  where hwmonMatcher = numberedPathMatcher "hwmon" ""
 
 -- | Checks Labels, if they refer to a core and returns Strings of core-
 -- temperatures.
@@ -100,11 +122,11 @@ corePaths :: Maybe String -> IO [String]
 corePaths s = do ps <- case s of
                         Just pth -> return [pth]
                         _ -> hwmonPaths
-                 let cps = [p ++ "temp" ++ show (x :: Int) ++ "_label"
-                           | x <- [0..9], p <- ps ]
+                 cps <- concat <$> traverse (flip getMatchingPathsInDir corePathMatcher) ps
                  ls <- filterM doesFileExist cps
                  cls <- filterM isLabelFromCore ls
                  return $ map labelToCore cls
+  where corePathMatcher = numberedPathMatcher "temp" "_label"
 
 -- | Checks if Label refers to a core.
 isLabelFromCore :: FilePath -> IO Bool
