@@ -19,7 +19,6 @@ module Xmobar.Plugins.Monitors.Load (loadConfig, runLoad) where
 import Xmobar.Plugins.Monitors.Common
 import qualified Data.ByteString.Lazy.Char8 as B
 import System.Posix.Files (fileExist)
-import Control.Monad (zipWithM)
 
 -- | Default configuration.
 loadConfig :: IO MConfig
@@ -31,7 +30,7 @@ loadConfig = mkMConfig
 -- the list of load averages
 parseLoadAvgs :: B.ByteString -> [Float]
 parseLoadAvgs =
-  map ((read :: String -> Float) . B.unpack) . take 3 . B.words . head . B.lines
+  map (read . B.unpack) . take 3 . B.words . head . B.lines
 
 -- | Retrieves load information.  Returns the monitor string parsed
 -- according to template (either default or user specified).
@@ -42,7 +41,6 @@ runLoad _ = do
   if exists then
       (do l <- io $ B.readFile file >>= return . parseLoadAvgs
           d <- getConfigValue decDigits
-          let s = showWithColors . const . showDigits d
-          parseTemplate =<< zipWithM s l l)
+          parseTemplate =<< mapM (showWithColors (showDigits d)) l)
     else
       return "Load: N/A"
