@@ -1,3 +1,10 @@
+## Version 0.43 (unreleased)
+
+_New features_
+
+  - New monitor `Load` providing load averages (stolen from Finn
+    Lawler).
+
 ## Version 0.42 (March, 2022)
 
 _New features_

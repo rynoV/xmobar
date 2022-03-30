@@ -167,6 +167,7 @@ library
                    Xmobar.Plugins.Monitors.CpuFreq,
                    Xmobar.Plugins.Monitors.Disk,
                    Xmobar.Plugins.Monitors.Disk.Common,
+                   Xmobar.Plugins.Monitors.Load,
                    Xmobar.Plugins.Monitors.Mem,
                    Xmobar.Plugins.Monitors.MultiCoreTemp,
                    Xmobar.Plugins.Monitors.MultiCpu,

@@ -662,7 +662,21 @@
           Run Locks
         #+end_src
 
-*** Process Monitors
+*** Load and Process Monitors
+***** =Load Args RefreshRate=
+
+      - Aliases to =load=
+
+      - Args: default monitor arguments. The low and high thresholds
+        (=-L= and =-H=) refer to load average values.
+
+      - Variables that can be used with the =-t/--template= argument:
+        =load1=, =load5=, =load15=.
+
+      - Default template: =Load: <load1>=.
+
+      - Displays load averages for the last 1, 5 or 15 hours.
+
 ***** =TopProc Args RefreshRate=
 
       - Aliases to =top=

@@ -3,7 +3,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Xmobar.Plugins.Monitors
--- Copyright   :  (c) 2010, 2011, 2012, 2013, 2017, 2018, 2019, 2020 Jose Antonio Ortega Ruiz
+-- Copyright   :  (c) 2010-2013, 2017-2020, 2022 Jose Antonio Ortega Ruiz
 --                (c) 2007-10 Andrea Rossato
 -- License     :  BSD-style (see LICENSE)
 --
@@ -30,6 +30,7 @@ import Xmobar.Plugins.Monitors.Cpu
 import Xmobar.Plugins.Monitors.MultiCpu
 import Xmobar.Plugins.Monitors.Batt
 import Xmobar.Plugins.Monitors.Bright
+import Xmobar.Plugins.Monitors.Load
 import Xmobar.Plugins.Monitors.Thermal
 import Xmobar.Plugins.Monitors.ThermalZone
 import Xmobar.Plugins.Monitors.CpuFreq
@@ -65,6 +66,7 @@ data Monitors = Network      Interface   Args Rate
               | Battery      Args        Rate
               | DiskU        DiskSpec    Args Rate
               | DiskIO       DiskSpec    Args Rate
+              | Load         Args        Rate
               | Thermal      Zone        Args Rate
               | ThermalZone  ZoneNo      Args Rate
               | Memory       Args        Rate
@@ -124,6 +126,7 @@ instance Exec Monitors where
 #endif
     alias (Network i _ _) = i
     alias (DynNetwork _ _) = "dynnetwork"
+    alias (Load _ _) = "load"
     alias (Thermal z _ _) = z
     alias (ThermalZone z _ _) = "thermal" ++ show z
     alias (Memory _ _) = "memory"
@@ -176,6 +179,7 @@ instance Exec Monitors where
     start (Thermal z a r) = runM (a ++ [z]) thermalConfig runThermal r
     start (ThermalZone z a r) =
       runM (a ++ [show z]) thermalZoneConfig runThermalZone r
+    start (Load a r) = runM a loadConfig runLoad r
     start (Memory a r) = runM a memConfig runMem r
     start (Swap a r) = runM a swapConfig runSwap r
     start (Battery a r) = runM a battConfig runBatt r
