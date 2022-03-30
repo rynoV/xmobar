@@ -95,7 +95,8 @@ mpdReady args = do
 
 parseMPD :: M.Response M.Status -> M.Response (Maybe M.Song) -> MOpts
             -> Monitor [String]
-parseMPD (Left _) _ _ = return $ "N/A": repeat ""
+parseMPD (Left _) _ _ =
+  getConfigValue naString >>= \na -> return $ na : repeat ""
 parseMPD (Right st) song opts = do
   songData <- parseSong song
   bar <- showPercentBar (100 * b) b

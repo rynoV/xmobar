@@ -24,9 +24,8 @@ import qualified Xmobar.Plugins.Monitors.Swap.Linux as MS
 #endif
 
 swapConfig :: IO MConfig
-swapConfig = mkMConfig
-        "Swap: <usedratio>%"                    -- template
-        ["usedratio", "total", "used", "free"] -- available replacements
+swapConfig = mkMConfig "Swap: <usedratio>%"
+                       ["usedratio", "total", "used", "free"]
 
 formatSwap :: [Float] -> Monitor [String]
 formatSwap (r:xs) = do
@@ -34,7 +33,7 @@ formatSwap (r:xs) = do
   other <- mapM (showWithColors (showDigits d)) xs
   ratio <- showPercentWithColors r
   return $ ratio:other
-formatSwap _ = return $ replicate 4 "N/A"
+formatSwap _ = replicate 4 `fmap` getConfigValue naString
 
 runSwap :: [String] -> Monitor String
 runSwap _ =

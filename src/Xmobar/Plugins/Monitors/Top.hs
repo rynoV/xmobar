@@ -3,7 +3,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Plugins.Monitors.Top
--- Copyright   :  (c) 2010, 2011, 2012, 2013, 2014, 2018 Jose A Ortega Ruiz
+-- Copyright   :  (c) 2010, 2011, 2012, 2013, 2014, 2018, 2022 Jose A Ortega Ruiz
 -- License     :  BSD-style (see LICENSE)
 --
 -- Maintainer  :  Jose A Ortega Ruiz <jao@gnu.org>
@@ -127,7 +127,8 @@ runTop tref scale _ = do
   (no, ps, ms) <- io $ topProcesses tref scale
   pstr <- showTimeInfos ps
   mstr <- showMemInfos ms
-  parseTemplate $ show no : concat (zipWith (++) pstr mstr) ++ repeat "N/A"
+  na <- getConfigValue naString
+  parseTemplate $ show no : concat (zipWith (++) pstr mstr) ++ repeat na
 
 startTop :: [String] -> Int -> (String -> IO ()) -> IO ()
 startTop a r cb = do

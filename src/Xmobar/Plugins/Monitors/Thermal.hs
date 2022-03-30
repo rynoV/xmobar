@@ -36,4 +36,4 @@ runThermal args = do
         then do number <- io $ fmap ((read :: String -> Int) . stringParser (1, 0)) (B.readFile file)
                 thermal <- showWithColors show number
                 parseTemplate [  thermal ]
-        else return $ "Thermal (" ++ zone ++ "): N/A"
+        else getConfigValue naString

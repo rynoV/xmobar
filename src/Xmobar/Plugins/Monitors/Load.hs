@@ -22,9 +22,7 @@ import System.Posix.Files (fileExist)
 
 -- | Default configuration.
 loadConfig :: IO MConfig
-loadConfig = mkMConfig
-       "Load: <load1>" -- template
-       ["load1", "load5", "load15"]       -- available replacements
+loadConfig = mkMConfig "Load: <load1>" ["load1", "load5", "load15"]
 
 -- | Parses the contents of a loadavg proc file, returning
 -- the list of load averages
@@ -43,4 +41,4 @@ runLoad _ = do
           d <- getConfigValue decDigits
           parseTemplate =<< mapM (showWithColors (showDigits d)) l)
     else
-      return "Load: N/A"
+      getConfigValue naString
