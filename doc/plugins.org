@@ -675,7 +675,9 @@
 
       - Default template: =Load: <load1>=.
 
-      - Displays load averages for the last 1, 5 or 15 hours.
+      - Displays load averages for the last 1, 5 or 15 minutes as
+        reported by, e.g., ~uptime(1)~.
+
 
 ***** =TopProc Args RefreshRate=
 

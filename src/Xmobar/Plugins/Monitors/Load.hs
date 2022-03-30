@@ -19,6 +19,7 @@ module Xmobar.Plugins.Monitors.Load (loadConfig, runLoad) where
 import Xmobar.Plugins.Monitors.Common
 import qualified Data.ByteString.Lazy.Char8 as B
 import System.Posix.Files (fileExist)
+import Control.Monad (zipWithM)
 
 -- | Default configuration.
 loadConfig :: IO MConfig
@@ -40,6 +41,7 @@ runLoad _ = do
   exists <- io $ fileExist file
   if exists then
       (do l <- io $ B.readFile file >>= return . parseLoadAvgs
-          parseTemplate =<< mapM (showWithColors $ showDigits 2) l)
+          let s = showWithColors . const . showDigits 2
+          parseTemplate =<< zipWithM s l l)
     else
       return "Load: N/A"
