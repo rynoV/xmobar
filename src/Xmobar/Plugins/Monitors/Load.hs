@@ -41,7 +41,8 @@ runLoad _ = do
   exists <- io $ fileExist file
   if exists then
       (do l <- io $ B.readFile file >>= return . parseLoadAvgs
-          let s = showWithColors . const . showDigits 2
+          d <- getConfigValue decDigits
+          let s = showWithColors . const . showDigits d
           parseTemplate =<< zipWithM s l l)
     else
       return "Load: N/A"

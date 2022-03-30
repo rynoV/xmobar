@@ -676,8 +676,18 @@
       - Default template: =Load: <load1>=.
 
       - Displays load averages for the last 1, 5 or 15 minutes as
-        reported by, e.g., ~uptime(1)~.
+        reported by, e.g., ~uptime(1)~.  The displayed values are float,
+        so that the ~"-d"~ option will control how many decimal digits
+        are shown (zero by default).
 
+      - Example: to have 2 decimal digits displayed, with a low
+        threshold at 1.0 and a high one at 3, you'd write something
+        like:
+
+        #+begin_src haskell
+            Run Load ["-t" , "<load1> <load5> <load15>"
+                     , "-L", "1", "-H", "3", "-d", "2"]) 300
+        #+end_src
 
 ***** =TopProc Args RefreshRate=
 
