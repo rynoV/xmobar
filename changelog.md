@@ -5,6 +5,11 @@ _New features_
   - New monitor `Load` providing load averages (stolen from Finn
     Lawler).
 
+_Bug fixes_
+
+  - MultiCoreTemp: allow temperature directory names with more than
+    one digit.
+
 ## Version 0.42 (March, 2022)
 
 _New features_
