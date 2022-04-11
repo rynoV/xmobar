@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Plugins.Monitors.Load
@@ -17,28 +19,28 @@
 module Xmobar.Plugins.Monitors.Load (loadConfig, runLoad) where
 
 import Xmobar.Plugins.Monitors.Common
-import qualified Data.ByteString.Lazy.Char8 as B
-import System.Posix.Files (fileExist)
+import Xmobar.Plugins.Monitors.Load.Common (Result(..))
+
+#if defined(freebsd_HOST_OS)
+import qualified Xmobar.Plugins.Monitors.Load.FreeBSD as ML
+#else
+import qualified Xmobar.Plugins.Monitors.Load.Linux as ML
+#endif
+
 
 -- | Default configuration.
 loadConfig :: IO MConfig
 loadConfig = mkMConfig "Load: <load1>" ["load1", "load5", "load15"]
 
--- | Parses the contents of a loadavg proc file, returning
--- the list of load averages
-parseLoadAvgs :: B.ByteString -> [Float]
-parseLoadAvgs =
-  map (read . B.unpack) . take 3 . B.words . head . B.lines
 
 -- | Retrieves load information.  Returns the monitor string parsed
 -- according to template (either default or user specified).
 runLoad :: [String] -> Monitor String
 runLoad _ = do
-  let file = "/proc/loadavg"
-  exists <- io $ fileExist file
-  if exists then
-      (do l <- io $ B.readFile file >>= return . parseLoadAvgs
-          d <- getConfigValue decDigits
-          parseTemplate =<< mapM (showWithColors (showDigits d)) l)
-    else
-      getConfigValue naString
+  result <- io ML.fetchLoads
+  case result of
+    Result loads ->
+      do
+        d <- getConfigValue decDigits
+        parseTemplate =<< mapM (showWithColors (showDigits d)) loads
+    NA -> getConfigValue naString
