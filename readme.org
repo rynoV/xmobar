@@ -200,7 +200,7 @@ channel, ~#xmobar~, at [[ircs://irc.libera.chat][Libera]].
   Staton, Artem Tarasov, Samuli Thomasson, Edward Tjörnhammar, Sergei
   Trofimovich, Thomas Tuegel, John Tyree, Jan Vornberger, Anton
   Vorontsov, Daniel Wagner, Zev Weiss, Phil Xiaojun Hu, Nikolay
-  Yakimov, Edward Z. Yang, Leo Zhang, Norbert Zeh, and Michal
+  Yakimov, Edward Z. Yang, Leo Zhang, Norbert Zeh, and Michał
   Zielonka.
 
   Andrea wants to thank Robert Manea and Spencer Janssen for their

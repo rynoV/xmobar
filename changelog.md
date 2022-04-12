@@ -3,7 +3,7 @@
 _New features_
 
   - New monitor `Load` providing load averages (stolen from Finn
-    Lawler).
+    Lawler, with FreeBSD support thanks to Michał Zielonka).
 
 _Bug fixes_
 
@@ -28,7 +28,7 @@ _Bug fixes_
 
 _New features_
 
-  - Disk monitors for FreeBSD (Michal Zielonka).
+  - Disk monitors for FreeBSD (Michał Zielonka).
   - Improvements to signal handling when using xmobar as a library (John Soo).
 
 ## Version 0.40 (November, 2021)
@@ -37,7 +37,7 @@ _New features_
 
   - New plugin: `QueueReader` (Guy Gastineau).
   - Greatly improved FreeBSD support: Mem, Network and Swap monitors
-    fixes, and CI build for FreeBSD (Michal Zielonka).
+    fixes, and CI build for FreeBSD (Michał Zielonka).
   - New template markup: `<hspace>`(tulthix)
 
 ## Version 0.39 (August, 2021)
