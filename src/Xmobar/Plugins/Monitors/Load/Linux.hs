@@ -22,9 +22,9 @@ import System.Posix.Files (fileExist)
 
 -- | Parses the contents of a loadavg proc file, returning
 -- the list of load averages
-parseLoadAvgs :: B.ByteString -> [Float]
+parseLoadAvgs :: B.ByteString -> Result
 parseLoadAvgs =
-  map (read . B.unpack) . take 3 . B.words . head . B.lines
+  Result . map (read . B.unpack) . take 3 . B.words . head . B.lines
 
 fetchLoads :: IO Result
 fetchLoads = do
@@ -32,7 +32,6 @@ fetchLoads = do
 
   exists <- fileExist file
   if exists then
-    (do contents <- B.readFile file
-        return $ Result (parseLoadAvgs contents))
+    parseLoadAvgs <$> B.readFile file
     else
-      return NA
+    return NA
