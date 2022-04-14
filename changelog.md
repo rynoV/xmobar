@@ -4,6 +4,7 @@ _New features_
 
   - New monitor `Load` providing load averages (stolen from Finn
     Lawler, with FreeBSD support thanks to Michał Zielonka).
+  - New argument `scale` for `Memory` monitor to scale size units.
 
 _Bug fixes_
 

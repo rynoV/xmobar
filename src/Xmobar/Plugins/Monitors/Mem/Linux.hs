@@ -23,11 +23,14 @@ parseMEM :: IO [Float]
 parseMEM =
     do file <- fileMEM
        let content = map words $ take 8 $ lines file
-           info = M.fromList $ map (\line -> (head line, (read $ line !! 1 :: Float) / 1024)) content
-           [total, free, buffer, cache] = map (info M.!) ["MemTotal:", "MemFree:", "Buffers:", "Cached:"]
+           info = M.fromList $ map (
+             \line -> (head line, (read $ line !! 1 :: Float) / 1024)) content
+           [total, free, buffer, cache] =
+             map (info M.!) ["MemTotal:", "MemFree:", "Buffers:", "Cached:"]
            available = M.findWithDefault (free + buffer + cache) "MemAvailable:" info
            used = total - available
            usedratio = used / total
            freeratio = free / total
            availableratio = available / total
-       return [usedratio, freeratio, availableratio, total, free, buffer, cache, available, used]
+       return [ usedratio, freeratio, availableratio
+              , total, free, buffer, cache, available, used]

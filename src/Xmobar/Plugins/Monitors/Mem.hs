@@ -13,7 +13,7 @@
 --
 -----------------------------------------------------------------------------
 
-module Xmobar.Plugins.Monitors.Mem (memConfig, runMem, totalMem, usedMem) where
+module Xmobar.Plugins.Monitors.Mem (memConfig, runMem) where
 
 import Xmobar.Plugins.Monitors.Common
 import System.Console.GetOpt
@@ -29,6 +29,7 @@ data MemOpts = MemOpts
   { usedIconPattern :: Maybe IconPattern
   , freeIconPattern :: Maybe IconPattern
   , availableIconPattern :: Maybe IconPattern
+  , scale :: Float
   }
 
 defaultOpts :: MemOpts
@@ -36,6 +37,7 @@ defaultOpts = MemOpts
   { usedIconPattern = Nothing
   , freeIconPattern = Nothing
   , availableIconPattern = Nothing
+  , scale = 1.0
   }
 
 options :: [OptDescr (MemOpts -> MemOpts)]
@@ -46,31 +48,29 @@ options =
      o { freeIconPattern = Just $ parseIconPattern x }) "") ""
   , Option "" ["available-icon-pattern"] (ReqArg (\x o ->
      o { availableIconPattern = Just $ parseIconPattern x }) "") ""
+  , Option "" ["scale"] (ReqArg (\x o -> o { scale = read x }) "") ""
   ]
 
 memConfig :: IO MConfig
 memConfig = mkMConfig
-       "Mem: <usedratio>% (<cache>M)" -- template
+       "Mem: <usedratio>% (<cache>M)"
        ["usedbar", "usedvbar", "usedipat", "freebar", "freevbar", "freeipat",
         "availablebar", "availablevbar", "availableipat",
         "usedratio", "freeratio", "availableratio",
-        "total", "free", "buffer", "cache", "available", "used"] -- available replacements
-
-totalMem :: IO Float
-totalMem = fmap ((*1024) . (!!1)) MM.parseMEM
-
-usedMem :: IO Float
-usedMem = fmap ((*1024) . (!!6)) MM.parseMEM
+        "total", "free", "buffer", "cache", "available", "used"]
 
 formatMem :: MemOpts -> [Float] -> Monitor [String]
 formatMem opts (r:fr:ar:xs) =
-    do let f = showDigits 0
-           mon i x = [showPercentBar (100 * x) x, showVerticalBar (100 * x) x, showIconPattern i x]
+    do d <- getConfigValue decDigits
+       let f = showDigits d
+           mon i x = [ showPercentBar (100 * x) x
+                     , showVerticalBar (100 * x) x
+                     , showIconPattern i x]
        sequence $ mon (usedIconPattern opts) r
            ++ mon (freeIconPattern opts) fr
            ++ mon (availableIconPattern opts) ar
            ++ map showPercentWithColors [r, fr, ar]
-           ++ map (showWithColors f) xs
+           ++ map (showWithColors f . (/ scale opts)) xs
 formatMem _ _ = replicate 10 `fmap` getConfigValue naString
 
 runMem :: [String] -> Monitor String

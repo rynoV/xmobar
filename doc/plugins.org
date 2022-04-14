@@ -510,6 +510,10 @@
           =freeipat=.
         - =--available-icon-pattern=: dynamic string for available memory
           ratio in =availableipat=.
+        - =--scale=: sizes (total, free, etc.) are reported in units of
+          ~Mb/scale~, with scale defaulting to 1.0.  So, for
+          instance, to get sizes reported in Gb, set this parameter
+          to 1024.
 
       - Thresholds refer to percentage of used memory
       - Variables that can be used with the =-t/--template= argument:
@@ -517,7 +521,17 @@
         =usedbar=, =usedvbar=, =usedipat=, =freeratio=, =freebar=, =freevbar=,
         =freeipat=, =availableratio=, =availablebar=, =availablevbar=,
         =availableipat=
+
       - Default template: =Mem: <usedratio>% (<cache>M)=
+
+      - Examples:
+
+        #+begin_src haskell
+          -- A monitor reporting memory used in Gb
+          Memory [ "-t", "<used> Gb", "--", "--scale", "1024"] 20
+          -- As above, but using one decimal digit to print numbers
+          Memory [ "-t", "<used> Gb", "-d", "1", "--", "--scale", "1024"] 20
+        #+end_src
 
 ***** =Swap Args RefreshRate=
 
