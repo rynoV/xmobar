@@ -23,7 +23,7 @@ import Xmobar.Plugins.Monitors.Batt.Common (BattOpts(..)
 import Control.Monad (unless)
 import Control.Exception (SomeException, handle)
 import System.FilePath ((</>))
-import System.IO (IOMode(ReadMode), hGetLine, withFile)
+import System.IO (IOMode(ReadMode), hGetLine, withFile, Handle)
 import System.Posix.Files (fileExist)
 import Data.List (sort, sortBy, group)
 import Data.Maybe (fromMaybe)
@@ -34,9 +34,10 @@ data Files = Files
   { fFull :: String
   , fNow :: String
   , fVoltage :: String
-  , fCurrent :: String
+  , fVoltageMin :: String
+  , fCurrent :: Maybe String
+  , fPower :: Maybe String
   , fStatus :: String
-  , isCurrent :: Bool
   } | NoFiles deriving Eq
 
 data Battery = Battery
@@ -57,45 +58,70 @@ batteryFiles :: String -> IO Files
 batteryFiles bat =
   do is_charge <- exists "charge_now"
      is_energy <- if is_charge then return False else exists "energy_now"
-     is_power <- exists "power_now"
      plain <- exists (if is_charge then "charge_full" else "energy_full")
-     let cf = if is_power then "power_now" else "current_now"
+     has_power <- exists powerNowPath
+     has_current <- exists currentNowPath
+     let pf = if has_power then Just powerNowPath else Nothing
+         cf = if has_current then Just currentNowPath else Nothing
          sf = if plain then "" else "_design"
      return $ case (is_charge, is_energy) of
-       (True, _) -> files "charge" cf sf is_power
-       (_, True) -> files "energy" cf sf is_power
+       (True, _) -> files "charge" cf pf sf 
+       (_, True) -> files "energy" cf pf sf
        _ -> NoFiles
   where prefix = sysDir </> bat
+        justPrefix a = Just $ prefix </> a
         exists = safeFileExist prefix
-        files ch cf sf ip = Files { fFull = prefix </> ch ++ "_full" ++ sf
+        files ch cf pf sf = Files { fFull = prefix </> ch ++ "_full" ++ sf
                                   , fNow = prefix </> ch ++ "_now"
-                                  , fCurrent = prefix </> cf
+                                  , fCurrent = maybe Nothing justPrefix cf
+                                  , fPower = maybe Nothing justPrefix pf
                                   , fVoltage = prefix </> "voltage_now"
-                                  , fStatus = prefix </> "status"
-                                  , isCurrent = not ip}
+                                  , fVoltageMin = prefix </> "voltage_min_design"
+                                  , fStatus = prefix </> "status"}
+        currentNowPath = "current_now"
+        powerNowPath = "power_now"
 
 haveAc :: FilePath -> IO Bool
 haveAc f =
-  handle onError $ withFile (sysDir </> f) ReadMode (fmap (== "1") . hGetLine)
-  where onError = const (return False) :: SomeException -> IO Bool
+  handle (onError False) $ withFile (sysDir </> f) ReadMode (fmap (== "1") . hGetLine)
+
+readBatPower :: Float -> Files -> IO Float
+
+readBatPower sc (Files {fPower = Just p}) = 
+    do valp <- grabNumber p
+       return $ valp / sc
+
+readBatPower sc (Files {fPower = Nothing, fCurrent = Just c, fVoltage = v}) = 
+    do valv <- grabNumber v
+       valc <- grabNumber c
+       return $ valc * valv / (sc * sc)
+
+readBatPower _ _ = do return 999
 
 readBattery :: Float -> Files -> IO Battery
 readBattery _ NoFiles = return $ Battery 0 0 0 "Unknown"
 readBattery sc files =
-    do a <- grab $ fFull files
-       b <- grab $ fNow files
-       d <- grab $ fCurrent files
-       s <- grabs $ fStatus files
-       let sc' = if isCurrent files then sc / 10 else sc
-           a' = max a b -- sometimes the reported max charge is lower than
-       return $ Battery (3600 * a' / sc') -- wattseconds
-                        (3600 * b / sc') -- wattseconds
-                        (abs d / sc') -- watts
+    do a <- grabNumber $ fFull files
+       b <- grabNumber $ fNow files
+       p <- readBatPower sc files
+       s <- grabString $ fStatus files
+       let a' = max a b -- sometimes the reported max charge is lower than
+       return $ Battery (3600 * a' / sc) -- wattseconds
+                        (3600 * b / sc) -- wattseconds
+                        (abs p) -- watts
                         s -- string: Discharging/Charging/Full
-    where grab f = handle onError $ withFile f ReadMode (fmap read . hGetLine)
-          onError = const (return (-1)) :: SomeException -> IO Float
-          grabs f = handle onError' $ withFile f ReadMode hGetLine
-          onError' = const (return "Unknown") :: SomeException -> IO String
+
+grabNumber :: (Num a, Read a) => FilePath -> IO a
+grabNumber = grabFile (-1) (fmap read . hGetLine)
+
+grabString :: FilePath -> IO String
+grabString = grabFile "Unknown" hGetLine
+
+grabFile :: a -> (Handle -> IO a) -> FilePath -> IO a
+grabFile returnOnError readMode f = handle (onFileError returnOnError) $ withFile f ReadMode readMode
+
+onFileError :: a -> SomeException -> IO a
+onFileError returnOnError = const (return returnOnError) 
 
 -- sortOn is only available starting at ghc 7.10
 sortOn :: Ord b => (a -> b) -> [a] -> [a]
