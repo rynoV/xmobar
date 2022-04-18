@@ -5,6 +5,7 @@ _New features_
   - New monitor `Load` providing load averages (stolen from Finn
     Lawler, with FreeBSD support thanks to Michał Zielonka).
   - New argument `scale` for `Memory` monitor to scale size units.
+  - New dbus signal: `SetAlpha` (see issue #499).
 
 _Bug fixes_
 

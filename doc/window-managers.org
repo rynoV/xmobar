@@ -219,7 +219,7 @@ choice.
         xmonad configuration (=xmonad.hs=), e.g. by using a custom
         =~/.xmonad/build= script.
 
-*** Example for using the DBus IPC interface with XMonad
+*** Example of using the DBus IPC interface with XMonad
 
     Bind the key which should {,un}map xmobar to a dummy value. This is
     necessary for {,un}grabKey in xmonad.
@@ -245,10 +245,10 @@ choice.
 
       toggleDocksHook :: Int -> KeySym -> Event -> X All
       toggleDocksHook to ks ( KeyEvent { ev_event_display = d
-                                      , ev_event_type    = et
-                                      , ev_keycode       = ekc
-                                      , ev_time          = etime
-                                      } ) =
+                                       , ev_event_type    = et
+                                       , ev_keycode       = ekc
+                                       , ev_time          = etime
+                                       } ) =
               io (keysymToKeycode d ks) >>= toggleDocks >> return (All True)
           where
           toggleDocks kc

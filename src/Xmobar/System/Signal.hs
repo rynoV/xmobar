@@ -46,6 +46,7 @@ data SignalType = Wakeup
                 | Hide   Int
                 | Reveal Int
                 | Toggle Int
+                | SetAlpha Int
                 | TogglePersistent
                 | Action Button Position
     deriving (Read, Show)

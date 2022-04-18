@@ -39,6 +39,7 @@ import qualified Data.List.NonEmpty as NE
 
 import Xmobar.System.Signal
 import Xmobar.Config.Types ( persistent
+                           , alpha
                            , font
                            , additionalFonts
                            , textOffset
@@ -145,6 +146,8 @@ signalLoop xc@(XConf d r w fs vos is cfg) as signal tv = do
 
          TogglePersistent -> signalLoop
             xc { config = cfg { persistent = not $ persistent cfg } } as signal tv
+
+         SetAlpha a -> signalLoop xc { config = cfg { alpha = a}} as signal tv
 
          Action but x -> action but x
 

@@ -428,12 +428,13 @@ available [[http://github.com/jaor/xmobar/raw/master/examples/xmobar.config][her
 
   When compiled with the optional =with_dbus= flag, xmobar can be
   controlled over dbus. All signals defined in [[https://github.com/jaor/xmobar/blob/master/src/Xmobar/System/Signal.hs][src/Signal.hs]] as =data
-  SignalType= can now be sent over dbus to xmobar. Due to current
-  limitations of the implementation only one process of xmobar can
-  acquire the dbus. This is handled on a first-come-first-served
-  basis, meaning that the first process will get the dbus
-  interface. Other processes will run without further problems, yet
-  have no dbus interface.
+  SignalType= can now be sent over dbus to xmobar.
+
+  Due to current limitations of the implementation only one process of
+  xmobar can acquire the dbus. This is handled on a
+  first-come-first-served basis, meaning that the first process will
+  get the dbus interface. Other processes will run without further
+  problems, yet have no dbus interface.
 
   - Bus Name: =org.Xmobar.Control=
   - Object Path: =/org/Xmobar/Control=
@@ -450,7 +451,7 @@ available [[http://github.com/jaor/xmobar/raw/master/examples/xmobar.config][her
       --print-reply \
       '/org/Xmobar/Control' \
       org.Xmobar.Control.SendSignal \
-      "string:Toggle 0"
+      "string:SetAlpha 192"
   #+end_src
 
   It is also possible to send multiple signals at once:
@@ -463,7 +464,8 @@ available [[http://github.com/jaor/xmobar/raw/master/examples/xmobar.config][her
 
   The =Toggle=, =Reveal=, and =Hide= signals take an additional integer
   argument that denotes an initial delay, in tenths of a second,
-  before the command takes effect.
+  before the command takes effect, while =SetAlpha= takes a new alpha
+  value (also an integer, between 0 and 255) as argument.
 
-  See [[window-managers.org::*Example of using][Interfacing with window managers]] for an example of how to use
+  See [[./window-managers.org::*Example of using][Interfacing with window managers]] for an example of how to use
   the DBus interface from xmonad.
