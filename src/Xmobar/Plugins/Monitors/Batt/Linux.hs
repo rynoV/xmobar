@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Plugins.Monitors.Batt.Linux
--- Copyright   :  (c) 2010, 2011, 2012, 2013, 2015, 2016, 2018, 2019 Jose A Ortega
+-- Copyright   :  (c) 2010-2013, 2015, 2016, 2018, 2019, 2022 Jose A Ortega
 --                (c) 2010 Andrea Rossato, Petr Rockai
 -- License     :  BSD-style (see LICENSE)
 --
@@ -15,7 +15,7 @@
 
 module Xmobar.Plugins.Monitors.Batt.Linux (readBatteries) where
 
-import Xmobar.Plugins.Monitors.Batt.Common (BattOpts(..)
+import Xmobar.Plugins.Monitors.Batt.Common ( BattOpts(..)
                                            , Result(..)
                                            , Status(..)
                                            , maybeAlert)
@@ -41,27 +41,54 @@ data Files = Files
   , fCurrent :: String
   , fPower :: String
   , fStatus :: String
+  , fBat :: String
   } deriving Eq
 
--- the default basenames of the possibly available attributes exposed by the kernel
-defFileBasenames :: Files
-defFileBasenames = Files {
-    fEFull = "energy_full"  
-  , fCFull = "charge_full"  
-  , fEFullDesign = "energy_full_design"  
-  , fCFullDesign = "charge_full_design"  
-  , fENow = "energy_now"  
-  , fCNow = "charge_now"  
-  , fVoltage = "voltage_now"  
-  , fVoltageMin = "voltage_min_design"  
-  , fCurrent = "current_now"  
-  , fPower = "power_now"  
-  , fStatus = "status" }
+-- the default basenames of the possibly available attributes exposed
+-- by the kernel
+defaultFiles :: Files
+defaultFiles = Files
+  { fEFull = "energy_full"
+  , fCFull = "charge_full"
+  , fEFullDesign = "energy_full_design"
+  , fCFullDesign = "charge_full_design"
+  , fENow = "energy_now"
+  , fCNow = "charge_now"
+  , fVoltage = "voltage_now"
+  , fVoltageMin = "voltage_min_design"
+  , fCurrent = "current_now"
+  , fPower = "power_now"
+  , fStatus = "status"
+  , fBat = "BAT0"
+  }
 
--- prefix all files in a Files object by a given prefix
--- I couldn't find a better way to do this
-prefixFiles :: String -> Files -> Files
-prefixFiles p (Files a b c d e f g h i j k) = Files (p </> a) (p </> b) (p </> c) (p </> d) (p </> e) (p </> f) (p </> g) (p </> h) (p </> i) (p </> j) (p </> k) 
+type FilesAccessor = Files -> String
+
+sysDir :: FilePath
+sysDir = "/sys/class/power_supply"
+
+battFile :: FilesAccessor -> Files -> FilePath
+battFile accessor files = sysDir </> fBat files </> accessor files
+
+grabNumber :: (Num a, Read a) => FilesAccessor -> Files -> IO (Maybe a)
+grabNumber = grabFile (fmap read . hGetLine)
+
+grabString :: FilesAccessor -> Files -> IO (Maybe String)
+grabString = grabFile hGetLine
+
+-- grab file contents returning Nothing if the file doesn't exist or
+-- any other error occurs
+grabFile :: (Handle -> IO a) -> FilesAccessor -> Files -> IO (Maybe a)
+grabFile readMode accessor files =
+  handle (onFileError Nothing) (withFile f ReadMode (fmap Just . readMode))
+  where f = battFile accessor files
+
+onFileError :: a -> SomeException -> IO a
+onFileError returnOnError = const (return returnOnError)
+
+-- get the filenames for a given battery name
+batteryFiles :: String -> Files
+batteryFiles bat = defaultFiles { fBat = bat }
 
 data Battery = Battery
   { full :: !Float
@@ -70,103 +97,79 @@ data Battery = Battery
   , status :: !String
   }
 
-sysDir :: FilePath
-sysDir = "/sys/class/power_supply"
-
--- get the filenames for a given battery name
-batteryFiles :: String -> Files 
-batteryFiles bat = prefixFiles (sysDir </> bat) defFileBasenames
-
 haveAc :: FilePath -> IO Bool
 haveAc f =
-  handle (onFileError False) $ withFile (sysDir </> f) ReadMode (fmap (== "1") . hGetLine)
+  handle (onFileError False) $
+    withFile (sysDir </> f) ReadMode (fmap (== "1") . hGetLine)
 
 -- retrieve the currently drawn power in Watt
 -- sc is a scaling factor which by kernel documentation must be 1e6
 readBatPower :: Float -> Files -> IO (Maybe Float)
 readBatPower sc f =
-    do pM <- grabNumber $ fPower f
-       cM <- grabNumber $ fCurrent f
-       vM <- grabNumber $ fVoltage f
+    do pM <- grabNumber fPower f
+       cM <- grabNumber fCurrent f
+       vM <- grabNumber fVoltage f
        return $ case (pM, cM, vM) of
            (Just pVal, _, _) -> Just $ pVal / sc
            (_, Just cVal, Just vVal) -> Just $ cVal * vVal / (sc * sc)
            (_, _, _) -> Nothing
 
--- retrieve the maximum capacity in Watt hours 
+-- retrieve the maximum capacity in Watt hours
 -- sc is a scaling factor which by kernel documentation must be 1e6
--- on getting the voltage: using voltage_min_design will probably underestimate 
+-- on getting the voltage: using voltage_min_design will probably underestimate
 -- the actual energy content of the battery and using voltage_now will probably
 -- overestimate it.
 readBatCapacityFull :: Float -> Files -> IO (Maybe Float)
 readBatCapacityFull sc f =
-    do cM  <- grabNumber $ fCFull f
-       eM  <- grabNumber $ fEFull f
-       cdM <- grabNumber $ fCFullDesign f
-       edM <- grabNumber $ fEFullDesign f
-       vM  <- grabNumber $ fVoltageMin f -- not sure if Voltage or VoltageMin is more accurate and if both are always available
-       return $ case (eM, cM, edM, cdM, vM) of 
+    do cM  <- grabNumber fCFull f
+       eM  <- grabNumber fEFull f
+       cdM <- grabNumber fCFullDesign f
+       edM <- grabNumber fEFullDesign f
+       -- not sure if Voltage or VoltageMin is more accurate and if both
+       -- are always available
+       vM  <- grabNumber fVoltageMin f
+       return $ case (eM, cM, edM, cdM, vM) of
            (Just eVal, _, _, _, _)         -> Just $ eVal        / sc
            (_, Just cVal, _, _, Just vVal) -> Just $ cVal * vVal / (sc * sc)
            (_, _, Just eVal, _, _)         -> Just $ eVal        / sc
            (_, _, _, Just cVal, Just vVal) -> Just $ cVal * vVal / (sc * sc)
            (_, _, _, _, _) -> Nothing
 
--- retrieve the current capacity in Watt hours 
+-- retrieve the current capacity in Watt hours
 -- sc is a scaling factor which by kernel documentation must be 1e6
--- on getting the voltage: using voltage_min_design will probably underestimate 
+-- on getting the voltage: using voltage_min_design will probably underestimate
 -- the actual energy content of the battery and using voltage_now will probably
 -- overestimate it.
 readBatCapacityNow :: Float -> Files -> IO (Maybe Float)
 readBatCapacityNow sc f =
-    do cM  <- grabNumber $ fCNow f
-       eM  <- grabNumber $ fENow f
-       vM  <- grabNumber $ fVoltageMin f -- not sure if Voltage or VoltageMin is more accurate and if both are always available
+    do cM  <- grabNumber fCNow f
+       eM  <- grabNumber fENow f
+       vM  <- grabNumber fVoltageMin f -- not sure if Voltage or
+                                       -- VoltageMin is more accurate
+                                       -- and if both are always
+                                       -- available
        return $ case (eM, cM, vM) of
            (Just eVal, _, _)         -> Just $ eVal        / sc
            (_, Just cVal, Just vVal) -> Just $ cVal * vVal / (sc * sc)
            (_, _, _) -> Nothing
 
 readBatStatus :: Files -> IO (Maybe String)
-readBatStatus f = grabString $ fStatus f
-
--- "resolve" a Maybe to a given default value if it is Nothing
-setDefault :: a -> IO (Maybe a) -> IO a
-setDefault def ioval =
-    do m <- ioval 
-       return $ case m of (Just v) -> v
-                          Nothing -> def
+readBatStatus = grabString fStatus
 
 -- collect all relevant battery values with defaults of not available
 readBattery :: Float -> Files -> IO Battery
 readBattery sc files =
-    do cFull <- setDefault 0 $ readBatCapacityFull sc files
-       cNow <- setDefault 0 $ readBatCapacityNow sc files
-       pwr <- setDefault 0 $ readBatPower sc files
-       s <- setDefault "Unknown" $ readBatStatus files
-       let cFull' = max cFull cNow -- sometimes the reported max charge is lower than
+    do cFull <- withDef 0 readBatCapacityFull
+       cNow <- withDef 0 readBatCapacityNow
+       pwr <- withDef 0 readBatPower
+       s <- withDef "Unknown" (const readBatStatus)
+       let cFull' = max cFull cNow -- sometimes the reported max
+                                   -- charge is lower than
        return $ Battery (3600 * cFull') -- wattseconds
                         (3600 * cNow) -- wattseconds
                         (abs pwr) -- watts
                         s -- string: Discharging/Charging/Full
-
-grabNumber :: (Num a, Read a) => FilePath -> IO (Maybe a)
-grabNumber = grabFile (fmap read . hGetLine)
-
-grabString :: FilePath -> IO (Maybe String)
-grabString = grabFile hGetLine
-
--- grab file contents returning Nothing if the file doesn't exist or any other error occurs
-grabFile :: (Handle -> IO a) -> FilePath -> IO (Maybe a)
-grabFile readMode f = handle (onFileError Nothing) (withFile f ReadMode (doJust . readMode))
-
-onFileError :: a -> SomeException -> IO a
-onFileError returnOnError = const (return returnOnError) 
-
-doJust :: IO a -> IO (Maybe a)
-doJust a =
-    do v <- a
-       return $ Just v
+         where withDef d reader = fromMaybe d `fmap` reader sc files
 
 -- sortOn is only available starting at ghc 7.10
 sortOn :: Ord b => (a -> b) -> [a] -> [a]
