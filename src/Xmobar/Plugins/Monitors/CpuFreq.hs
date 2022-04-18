@@ -22,7 +22,8 @@ import Xmobar.Plugins.Monitors.Common
 -- get more cpu frequencies.
 cpuFreqConfig :: IO MConfig
 cpuFreqConfig =
-  mkMConfig "Freq: <cpu0>" (map ((++) "cpu" . show) [0 :: Int ..])
+  mkMConfig "Freq: <cpu0>"
+            (["max", "min", "avg"] ++ map ((++) "cpu" . show) [0 :: Int ..])
 
 
 -- |
@@ -32,12 +33,14 @@ runCpuFreq :: [String] -> Monitor String
 runCpuFreq _ = do
   suffix <- getConfigValue useSuffix
   ddigits <- getConfigValue decDigits
-  let path = ["/sys/devices/system/cpu/cpu", "/cpufreq/scaling_cur_freq"]
+  let paths = ["/sys/devices/system/cpu/cpu", "/cpufreq/scaling_cur_freq"]
       divisor = 1e6 :: Double
       fmt x | x < 1 = if suffix then mhzFmt x ++ "MHz"
                                 else ghzFmt x
             | otherwise = ghzFmt x ++ if suffix then "GHz" else ""
       mhzFmt x = show (round (x * 1000) :: Integer)
       ghzFmt = showDigits ddigits
-  failureMessage <- getConfigValue naString
-  checkedDataRetrieval failureMessage [path] Nothing (/divisor) fmt
+      sts xs = [maximum xs, minimum xs, sum xs / fromIntegral (length xs)]
+  vs <- checkedDataRead [paths]
+  if null vs then getConfigValue naString
+  else mapM (showWithColors fmt . (/divisor)) (sts vs ++ vs) >>= parseTemplate

@@ -382,7 +382,9 @@
       - Thresholds refer to frequency in GHz
 
       - Variables that can be used with the =-t/--template= argument:
-        =cpu0=, =cpu1=, .., =cpuN=
+        =cpu0=, =cpu1=, .., =cpuN=, give the current frequency of the
+        respective CPU core, and =max=, =min= and =avg= the maximum, minimum
+        and average frequency over all available cores.
 
       - Default template: =Freq: <cpu0>GHz=
 
@@ -392,6 +394,9 @@
 
         #+begin_src haskell
           Run CpuFreq ["-t", "Freq:<cpu0>|<cpu1>GHz", "-L", "0", "-H", "2",
+                       "-l", "lightblue", "-n","white", "-h", "red"] 50
+
+          Run CpuFreq ["-t", "Freq:<avg> GHz", "-L", "0", "-H", "2",
                        "-l", "lightblue", "-n","white", "-h", "red"] 50
         #+end_src
 

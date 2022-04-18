@@ -6,6 +6,7 @@ _New features_
     Lawler, with FreeBSD support thanks to Michał Zielonka).
   - New argument `scale` for `Memory` monitor to scale size units.
   - New dbus signal: `SetAlpha` (see issue #499).
+  - `CpuFreq`: new template parameters `max`, `min` and `avg`.
 
 _Bug fixes_
 

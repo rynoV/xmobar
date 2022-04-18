@@ -14,7 +14,9 @@
 --
 -----------------------------------------------------------------------------
 
-module Xmobar.Plugins.Monitors.Common.Files (checkedDataRetrieval) where
+module Xmobar.Plugins.Monitors.Common.Files ( checkedDataRetrieval
+                                            , checkedDataRead)
+where
 
 #if __GLASGOW_HASKELL__ < 800
 import Control.Applicative
@@ -48,6 +50,11 @@ retrieveData path lbl trans fmt = do
     else Just <$> (     parseTemplate
                     =<< mapM (showWithColors fmt . trans . read) pairs
                   )
+
+checkedDataRead :: [[String]] -> Monitor [Double]
+checkedDataRead paths = concat <$> mapM readData paths
+  where readData path = map (read . snd) . sortBy (compare `on` fst) <$>
+                         (mapM readFiles =<< findFilesAndLabel path Nothing)
 
 -- | Represents the different types of path components
 data Comp = Fix String
