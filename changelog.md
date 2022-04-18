@@ -10,6 +10,8 @@ _Bug fixes_
 
   - MultiCoreTemp: allow temperature directory names with more than
     one digit.
+  - Batt (linux): correct computation of power consumption based on
+    actual voltage (Patrick Günther).
 
 ## Version 0.42 (March, 2022)
 
