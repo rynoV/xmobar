@@ -1,4 +1,4 @@
-## Version 0.43 (unreleased)
+## Version 0.43 (May, 2023)
 
 _New features_
 
