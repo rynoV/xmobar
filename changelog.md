@@ -1,3 +1,10 @@
+## Version 0.44 (unreleased)
+
+_Breaking changes_
+
+  - Building with UTF-8 support is now mandatory (the with_utf8 flag
+    is gone).
+
 ## Version 0.43 (May, 2023)
 
 _New features_

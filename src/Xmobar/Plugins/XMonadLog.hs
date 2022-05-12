@@ -23,12 +23,7 @@ import Graphics.X11.Xlib.Extras
 import Xmobar.Run.Exec
 import Xmobar.Run.Actions (stripActions)
 
-#ifdef UTF8
-#undef UTF8
 import Codec.Binary.UTF8.String as UTF8
-#define UTF8
-#endif
-
 import Foreign.C (CChar)
 import Data.List (intercalate)
 import Xmobar.X11.Events (nextEvent')
@@ -86,10 +81,4 @@ instance Exec XMonadLog where
         return ()
 
 decodeCChar :: [CChar] -> String
-#ifdef UTF8
-#undef UTF8
 decodeCChar = UTF8.decode . map fromIntegral
-#define UTF8
-#else
-decodeCChar = map (toEnum . fromIntegral)
-#endif

@@ -23,11 +23,7 @@ import Control.Monad.Reader
 import Graphics.X11 hiding (Modifier, Color)
 import Graphics.X11.Xlib.Extras
 import Xmobar.Run.Exec
-#ifdef UTF8
-#undef UTF8
 import Codec.Binary.UTF8.String as UTF8
-#define UTF8
-#endif
 import Foreign.C (CChar, CLong)
 import Xmobar.X11.Events (nextEvent')
 
@@ -256,10 +252,4 @@ updateDesktop w = do
         _      -> return ()
 
 decodeCChar :: [CChar] -> String
-#ifdef UTF8
-#undef UTF8
 decodeCChar = UTF8.decode . map fromIntegral
-#define UTF8
-#else
-decodeCChar = map (toEnum . fromIntegral)
-#endif

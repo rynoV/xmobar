@@ -23,9 +23,6 @@ import Control.Monad (when)
 
 
 import Data.Aeson
-
--- import qualified Data.ByteString.Lazy as BL
-
 import GHC.Generics
 
 import Xmobar.System.Utils (forkThread)

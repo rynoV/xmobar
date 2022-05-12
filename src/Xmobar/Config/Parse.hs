@@ -26,12 +26,12 @@ import Data.Functor ((<&>))
 
 import Xmobar.Config.Types
 
-#if defined XFT || defined UTF8
+#ifdef XFT
 import qualified System.IO as S (readFile)
 #endif
 
 readFileSafe :: FilePath -> IO String
-#if defined XFT || defined UTF8
+#ifdef XFT
 readFileSafe = S.readFile
 #else
 readFileSafe = readFile

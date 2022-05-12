@@ -25,9 +25,7 @@ import qualified System.Locale as L
 import qualified Data.Time.Format as L
 #endif
 
-#ifdef UTF8
 import Codec.Binary.UTF8.String
-#endif
 
 --  get localized strings
 type NlItem = CInt
@@ -48,12 +46,8 @@ foreign import ccall unsafe "langinfo.h nl_langinfo"
 getLangInfo :: NlItem -> IO String
 getLangInfo item = do
   itemStr <- nl_langinfo item
-#ifdef UTF8
   str <- peekCString itemStr
   return $ if isUTF8Encoded str then decodeString str else str
-#else
-  peekCString itemStr
-#endif
 
 #include <locale.h>
 foreign import ccall unsafe "locale.h setlocale"

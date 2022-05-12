@@ -1,5 +1,5 @@
 name:               xmobar
-version:            0.43
+version:            0.44
 homepage:           https://github.com/jaor/xmobar
 synopsis:           A Minimalistic Text Based Status Bar
 description: 	    Xmobar is a minimalistic text based status bar.
@@ -182,8 +182,6 @@ library
     extra-libraries: Xrandr Xrender
 
     ghc-options: -funbox-strict-fields -Wall -fno-warn-unused-do-bind
-
-    cpp-options: -DUTF8
 
     build-depends:
                   X11 >= 1.6.1,
