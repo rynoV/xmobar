@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------------
 -- |
 -- Module: Xmobar.Plugins.Monitors.Strings
--- Copyright: (c) 2018, 2019, 2020 Jose Antonio Ortega Ruiz
+-- Copyright: (c) 2018, 2019, 2020, 2022 Jose Antonio Ortega Ruiz
 -- License: BSD3-style (see LICENSE)
 --
 -- Maintainer: jao@gnu.org
@@ -261,9 +261,10 @@ logScaling f v = do
   l <- fromIntegral `fmap` getConfigValue low
   bw <- fromIntegral `fmap` getConfigValue barWidth
   let [ll, hh] = sort [l, h]
+      bw' = if bw > 0 then bw else 10
       scaled x | x == 0.0 = 0
-               | x <= ll = 1 / bw
-               | otherwise = f + logBase 2 (x / hh) / bw
+               | x <= ll = 1 / bw'
+               | otherwise = f + logBase 2 (x / hh) / bw'
   return $ scaled v
 
 showLogBar :: Float -> Float -> Monitor String
