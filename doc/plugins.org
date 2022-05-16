@@ -1117,7 +1117,7 @@
 
       - Aliases to the interface name: so =Network "eth0" []= can be used as
         =%eth0%=
-      - Thresholds refer to velocities expressed in Kb/s
+      - Thresholds refer to velocities expressed in B/s
       - Args: default monitor arguments, plus:
 
         - =--rx-icon-pattern=: dynamic string for reception rate in =rxipat=.
@@ -1130,7 +1130,7 @@
         =rx=, =tx=, =rxbar=, =rxvbar=, =rxipat=, =txbar=, =txvbar=, =txipat=,
         =up=. Reception and transmission rates (=rx= and =tx=) are displayed
         by default as Kb/s, without any suffixes, but you can set the =-S= to
-        "True" to make them displayed with adaptive units (Kb/s, Mb/s, etc.).
+        "True" to make them displayed with adaptive units (KB/s, MB/s, etc.).
       - Default template: =<dev>: <rx>KB|<tx>KB=
 
 ***** =DynNetwork Args RefreshRate=
