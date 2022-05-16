@@ -1129,7 +1129,7 @@
       - Variables that can be used with the =-t=/=--template= argument: =dev=,
         =rx=, =tx=, =rxbar=, =rxvbar=, =rxipat=, =txbar=, =txvbar=, =txipat=,
         =up=. Reception and transmission rates (=rx= and =tx=) are displayed
-        by default as Kb/s, without any suffixes, but you can set the =-S= to
+        by default as KB/s, without any suffixes, but you can set the =-S= to
         "True" to make them displayed with adaptive units (KB/s, MB/s, etc.).
       - Default template: =<dev>: <rx>KB|<tx>KB=
 
@@ -1137,7 +1137,7 @@
 
       - Active interface is detected automatically
       - Aliases to "dynnetwork"
-      - Thresholds are expressed in Kb/s
+      - Thresholds are expressed in B/s
       - Args: default monitor arguments, plus:
 
       - =--rx-icon-pattern=: dynamic string for reception rate in =rxipat=.
@@ -1150,7 +1150,7 @@
 
       Reception and transmission rates (=rx= and =tx=) are displayed in Kbytes
       per second, and you can set the =-S= to "True" to make them displayed
-      with units (the string "Kb/s").
+      with units (the string "KB/s").
       - Default template: =<dev>: <rx>KB|<tx>KB=
       - Example of usage of =--devices= option:
 
