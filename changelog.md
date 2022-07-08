@@ -1,4 +1,4 @@
-## Version 0.44 (unreleased)
+## Version 0.44 (July, 2022)
 
 _Breaking changes_
 
@@ -7,9 +7,9 @@ _Breaking changes_
 
 _Bug fixes_
 
-  - Fix for -W "0" monitor spec in logarithmic bars
+  - Fix for -W "0" monitor spec in logarithmic bars.
 
-## Version 0.43 (May, 2023)
+## Version 0.43 (May, 2022)
 
 _New features_
 
