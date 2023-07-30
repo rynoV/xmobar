@@ -6,8 +6,12 @@ packages:
 
 flags:
  xmobar:
-   all_extensions: true
+   all_extensions: false
    with_threaded: true
+   with_dbus: true
+   with_xft: true
+   with_nl80211: true
+   with_alsa: true
 
 extra-deps:
  - netlink-1.1.1.0
